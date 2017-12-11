@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start":
-      "rollup -c -w && postcss src/css/index.css -o src/bundle.css -w -c",
+      "postcss src/css/index.css -o public/bundle.css -w -c & rollup -c -w",
     "build:js": "rollup -c",
     "build:css": "postcss src/css/index.css -o public/bundle.css -c",
     "build":
@@ -34,6 +34,7 @@
     "rollup-plugin-node-resolve": "^3.0.0"
   },
   "dependencies": {
-    "d3-dsv": "^1.0.8"
+    "d3-dsv": "^1.0.8",
+    "d3-selection": "^1.2.0"
   }
 }

@@ -1,1 +1,1 @@
-export default 'id,name\nFRA,France\nNOR,Norway';
+export default 'id,name,value\nFRA,France,20\nNOR,Norway,14';
