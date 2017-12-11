@@ -6,8 +6,9 @@
   "author": "Martín González <m@martingonzalez.net>",
   "license": "MIT",
   "scripts": {
-    "start": "postcss src/css/index.css -o src/bundle.css -w -c",
-    "build:js": "babel src -o public/bundle.js",
+    "start":
+      "rollup -c -w && postcss src/css/index.css -o src/bundle.css -w -c",
+    "build:js": "rollup -c",
     "build:css": "postcss src/css/index.css -o public/bundle.css -c",
     "build":
       "yarn run build:js && yarn run build:css && cp {src/index.html} public/",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.13.0",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -26,6 +28,12 @@
     "postcss-cssnext": "^3.0.2",
     "postcss-import": "^11.0.0",
     "postcss-nested": "^3.0.0",
-    "prettier": "1.9.1"
+    "prettier": "1.9.1",
+    "rollup": "^0.52.1",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  },
+  "dependencies": {
+    "d3-dsv": "^1.0.8"
   }
 }
