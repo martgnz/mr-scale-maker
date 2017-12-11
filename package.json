@@ -6,10 +6,11 @@
   "author": "Martín González <m@martingonzalez.net>",
   "license": "MIT",
   "scripts": {
-    "build:js": "babel src -o src/bundle.js",
-    "build:css": "postcss src/css/index.css -o src/bundle.css -c",
+    "start": "postcss src/css/index.css -o src/bundle.css -w -c",
+    "build:js": "babel src -o public/bundle.js",
+    "build:css": "postcss src/css/index.css -o public/bundle.css -c",
     "build":
-      "yarn run build:js && yarn run build:css && cp {src/bundle.js,src/bundle.css,src/index.html} public/",
+      "yarn run build:js && yarn run build:css && cp {src/index.html} public/",
     "deploy": "yarn run build && gh-pages -d ./public"
   },
   "devDependencies": {

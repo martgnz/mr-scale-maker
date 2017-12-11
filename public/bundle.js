@@ -1,3 +1,3 @@
-"use strict";
+'use strict';
 
-console.log("Test test");
+console.log('Test test');
