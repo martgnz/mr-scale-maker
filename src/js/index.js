@@ -5,7 +5,9 @@ import { csvParse } from 'd3-dsv';
 // const data = csvParse(sampleData)
 const app = select('#app');
 const form = app.select('.data-input form');
-const output = app.select('.data-output');
+
+const choose = app.select('#choose');
+const output = choose.select('.data-output');
 
 form
   .on(
@@ -27,19 +29,52 @@ function dropped() {
   const file = event.dataTransfer.files[0];
   const reader = new FileReader();
 
+  // TODO: Print message if file is not accepted
   if (file.type.match('text.*')) {
     reader.readAsText(file);
 
     reader.onload = () => {
-      displayFile(reader.result);
+      selectColumn(reader.result);
     };
   }
 
   form.classed('is-dragover', false);
 }
 
-function displayFile(input) {
+function selectColumn(input) {
+  choose.classed('hidden', false);
+
+  // Parse the dropped data
   const data = csvParse(input);
 
-  output.text(JSON.stringify(data));
+  // Based on Gregor Aisch's table implementation
+  // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
+  const table = output.append('table');
+
+  table
+    .append('thead')
+    .append('tr')
+    .selectAll('th')
+    .data(data.columns)
+    .enter()
+    .append('th')
+    .text(d => d);
+
+  table
+    .append('tbody')
+    .selectAll('tr')
+    .data(data)
+    .enter()
+    .append('tr')
+    .selectAll('td')
+    .data(row =>
+      data.columns.map(c => {
+        const cell = {};
+        cell[c] = row[c];
+        return cell;
+      }),
+    )
+    .enter()
+    .append('td')
+    .html(d => Object.values(d));
 }

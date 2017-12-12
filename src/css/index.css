@@ -1,6 +1,7 @@
 @import './reboot';
 @import './variables';
 @import './input-file';
+@import './table';
 
 body {
   padding: 0.5rem;
@@ -13,4 +14,12 @@ body {
   @media (min-width: 960px) {
     padding: 0;
   }
+}
+
+h1 {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
 }
