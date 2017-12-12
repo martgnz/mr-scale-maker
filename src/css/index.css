@@ -2,6 +2,7 @@
 @import './variables';
 @import './input-file';
 @import './table';
+@import './histogram';
 
 body {
   padding: 0.5rem;
@@ -22,4 +23,8 @@ h1 {
 
 .hidden {
   display: none;
+}
+
+section {
+  margin-bottom: 2rem;
 }

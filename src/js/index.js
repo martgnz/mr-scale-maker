@@ -1,6 +1,7 @@
-import { select, event } from 'd3-selection';
+import { select, selectAll, event } from 'd3-selection';
 import { csvParse } from 'd3-dsv';
-// import sampleData from './sample';
+
+import renderHistogram from './render-histogram';
 
 // const data = csvParse(sampleData)
 const app = select('#app');
@@ -8,6 +9,11 @@ const form = app.select('.data-input form');
 
 const choose = app.select('#choose');
 const output = choose.select('.data-output');
+
+const visualize = app.select('#visualize');
+const chart = visualize.select('.histogram');
+
+let data;
 
 form
   .on(
@@ -45,7 +51,7 @@ function selectColumn(input) {
   choose.classed('hidden', false);
 
   // Parse the dropped data
-  const data = csvParse(input);
+  data = csvParse(input);
 
   // Based on Gregor Aisch's table implementation
   // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
@@ -58,7 +64,8 @@ function selectColumn(input) {
     .data(data.columns)
     .enter()
     .append('th')
-    .text(d => d);
+    .text(d => d)
+    .on('click', paintColumn);
 
   table
     .append('tbody')
@@ -77,4 +84,13 @@ function selectColumn(input) {
     .enter()
     .append('td')
     .html(d => Object.values(d));
+}
+
+function paintColumn(d) {
+  selectAll('.checked').classed('checked', false);
+  select(this).classed('checked', true);
+
+  visualize.classed('hidden', false);
+
+  renderHistogram(chart, data, d);
 }

@@ -32,7 +32,10 @@
     "rollup-plugin-node-resolve": "^3.0.0"
   },
   "dependencies": {
+    "d3-array": "^1.2.1",
+    "d3-axis": "^1.0.8",
     "d3-dsv": "^1.0.8",
+    "d3-scale": "^1.0.7",
     "d3-selection": "^1.2.0"
   }
 }

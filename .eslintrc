@@ -3,5 +3,8 @@
   "globals": {
     "FileReader": true,
   },
-  "rules": { "no-use-before-define": "off" }
+  "rules": {
+    "no-use-before-define": "off",
+    "no-param-reassign": "off"
+  }
 }
