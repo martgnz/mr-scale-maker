@@ -1,6 +1,17 @@
 .data-output {
   table {
     width: 100%;
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      height: 5rem;
+      width: 100%;
+      background-image: linear-gradient(to bottom, transparent, white);
+      pointer-events: none;
+    }
 
     th {
       border-bottom: 1px solid #111;
