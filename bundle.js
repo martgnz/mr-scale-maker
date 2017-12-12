@@ -3870,7 +3870,7 @@ function selectColumn(input) {
     return d;
   }).on('click', paintColumn);
 
-  table.append('tbody').selectAll('tr').data(data.slice(0, 10)).enter().append('tr').selectAll('td').data(function (row) {
+  table.append('tbody').selectAll('tr').data(data.slice(0, 5)).enter().append('tr').selectAll('td').data(function (row) {
     return data.columns.map(function (c) {
       var cell = {};
       cell[c] = row[c];
