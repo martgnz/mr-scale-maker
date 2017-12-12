@@ -1,14 +1,16 @@
-:root {
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
+@import './reboot';
+@import './variables';
+@import './input-file';
 
 body {
+  padding: 0.5rem;
   max-width: 960px;
-  font-size: 100%;
   margin: 1rem auto;
   line-height: 1.4;
-  font-family: var(--font);
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
+
+  @media (min-width: 960px) {
+    padding: 0;
+  }
 }

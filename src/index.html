@@ -9,6 +9,19 @@
 <div id="app">
   <h1>Mr. Scalemaker</h1>
   
+  <div class="data-input">
+    <form class="drag" method="post" action="" enctype="multipart/form-data">
+    <div class="drag__input">
+      <input class="drag__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+      <label for="file"><strong>Choose a file</strong><span class="drag__dragndrop"> or drag it here</span>.</label>
+      <button class="drag__button" type="submit">Upload</button>
+    </div>
+    <div class="drag__uploading">Uploading&hellip;</div>
+    <div class="drag__success">Done!</div>
+    <div class="drag__error">Error! <span></span>.</div>
+  </form>
+  </div>
+  
   <div class="data-output"></div>
 </div>
 <script src="bundle.js" charset="utf-8"></script>
