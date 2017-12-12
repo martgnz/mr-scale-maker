@@ -13,7 +13,7 @@
     font-size: 1.25rem;
     background-color: white;
     position: relative;
-    padding: 100px 20px;
+    padding: 50px 20px;
     outline-offset: -10px;
     transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
 
