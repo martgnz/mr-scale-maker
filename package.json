@@ -6,12 +6,11 @@
   "author": "Martín González <m@martingonzalez.net>",
   "license": "MIT",
   "scripts": {
-    "start":
-      "postcss src/css/index.css -o public/bundle.css -w -c & rollup -c -w",
+    "start": "postcss src/css/index.css -o src/bundle.css -w -c & rollup -c -w",
     "build:js": "rollup -c",
-    "build:css": "postcss src/css/index.css -o public/bundle.css -c",
+    "build:css": "postcss src/css/index.css -o src/bundle.css -c",
     "build":
-      "yarn run build:js && yarn run build:css && cp src/index.html public/index.html",
+      "mkdir -p public && yarn run build:js && yarn run build:css && cp src/index.html public/index.html",
     "deploy": "yarn run build && gh-pages -d ./public"
   },
   "devDependencies": {

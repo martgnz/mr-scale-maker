@@ -4,7 +4,7 @@ import babel from 'rollup-plugin-babel';
 export default {
   input: 'src/js/index.js',
   output: {
-    file: 'public/bundle.js',
+    file: 'src/bundle.js',
     format: 'iife',
     name: 'bundle',
   },
