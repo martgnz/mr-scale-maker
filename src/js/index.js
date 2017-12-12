@@ -70,7 +70,7 @@ function selectColumn(input) {
   table
     .append('tbody')
     .selectAll('tr')
-    .data(data.slice(0, 10))
+    .data(data.slice(0, 5))
     .enter()
     .append('tr')
     .selectAll('td')
