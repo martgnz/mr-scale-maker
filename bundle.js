@@ -65,7 +65,7 @@ var matcher$1 = matcher;
 
 var filterEvents = {};
 
-
+var event = null;
 
 if (typeof document !== "undefined") {
   var element$1 = document.documentElement;
@@ -86,10 +86,12 @@ function filterContextListener(listener, index, group) {
 
 function contextListener(listener, index, group) {
   return function(event1) {
+    var event0 = event; // Events can be reentrant (e.g., focus).
+    event = event1;
     try {
       listener.call(this, this.__data__, index, group);
     } finally {
-      
+      event = event0;
     }
   };
 }
@@ -989,15 +991,63 @@ var csvParse = csv.parse;
 
 var tsv = dsv("\t");
 
-var sampleData = 'id,name,value\nFRA,France,20\nNOR,Norway,14';
+// import sampleData from './sample';
 
-var data = csvParse(sampleData);
+// const data = csvParse(sampleData)
 var app = select('#app');
+var form = app.select('.data-input form');
 
-var div = app.select('.data-output').selectAll('div').data(data).enter();
+var choose = app.select('#choose');
+var output = choose.select('.data-output');
 
-div.append('div').html(function (d) {
-  return d.id + ': ' + d.value;
-});
+form.on('drag dragstart dragend.default dragover.default dragenter.default dragleave.default drop.default', function () {
+  event.preventDefault();
+  event.stopPropagation();
+}).on('dragover dragenter', function () {
+  form.classed('is-dragover', true);
+}).on('dragleave dragend drop', function () {
+  form.classed('is-dragover', false);
+}).on('drop', dropped);
+
+function dropped() {
+  var file = event.dataTransfer.files[0];
+  var reader = new FileReader();
+
+  // TODO: Print message if file is not accepted
+  if (file.type.match('text.*')) {
+    reader.readAsText(file);
+
+    reader.onload = function () {
+      selectColumn(reader.result);
+    };
+  }
+
+  form.classed('is-dragover', false);
+}
+
+function selectColumn(input) {
+  choose.classed('hidden', false);
+
+  // Parse the dropped data
+  var data = csvParse(input);
+
+  // Based on Gregor Aisch's table implementation
+  // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
+  var table = output.append('table');
+
+  table.append('thead').append('tr').selectAll('th').data(data.columns).enter().append('th').text(function (d) {
+    return d;
+  });
+
+  table.append('tbody').selectAll('tr').data(data).enter().append('tr').selectAll('td').data(function (row) {
+    return data.columns.map(function (c) {
+      var cell = {};
+      cell[c] = row[c];
+      return cell;
+    });
+  }).enter().append('td').html(function (d) {
+    return Object.values(d);
+  });
+}
 
 }());
