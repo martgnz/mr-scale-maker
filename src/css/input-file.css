@@ -11,22 +11,22 @@
     text-align: center;
     outline: 2px dashed #92b0b3;
     font-size: 1.25rem;
-    background-color: #c8dadf;
+    background-color: white;
     position: relative;
     padding: 100px 20px;
     outline-offset: -10px;
     transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
 
+    &.is-dragover {
+      background-color: #c8dadf;
+    }
     .drag__dragndrop {
       display: inline;
-    }
-    .drag.is-dragover {
-      background-color: grey;
     }
     .drag__icon {
       width: 100%;
       height: 80px;
-      fill: #92b0b3;
+      fill: #333;
       display: block;
       margin-bottom: 40px;
     }

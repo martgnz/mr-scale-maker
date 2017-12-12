@@ -65,7 +65,7 @@ var matcher$1 = matcher;
 
 var filterEvents = {};
 
-
+var event = null;
 
 if (typeof document !== "undefined") {
   var element$1 = document.documentElement;
@@ -86,10 +86,12 @@ function filterContextListener(listener, index, group) {
 
 function contextListener(listener, index, group) {
   return function(event1) {
+    var event0 = event; // Events can be reentrant (e.g., focus).
+    event = event1;
     try {
       listener.call(this, this.__data__, index, group);
     } finally {
-      
+      event = event0;
     }
   };
 }
@@ -993,6 +995,19 @@ var sampleData = 'id,name,value\nFRA,France,20\nNOR,Norway,14';
 
 var data = csvParse(sampleData);
 var app = select('#app');
+var form = app.select('.data-input form');
+
+form.on('drag dragstart dragend dragover dragenter dragleave drop', function () {
+  event.preventDefault();
+  event.stopPropagation();
+}).on('dragover dragenter', function () {
+  form.classed('is-dragover', true);
+}).on('dragleave dragend drop', function () {
+  form.classed('is-dragover', false);
+}).on('drop', function () {
+  var droppedFiles = event.originalEvent.dataTransfer.files;
+  console.log(droppedFiles);
+});
 
 var div = app.select('.data-output').selectAll('div').data(data).enter();
 

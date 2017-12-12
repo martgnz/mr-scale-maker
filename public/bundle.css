@@ -332,26 +332,26 @@ template {
     outline: 2px dashed #92b0b3;
     font-size: 20px;
     font-size: 1.25rem;
-    background-color: #c8dadf;
+    background-color: white;
     position: relative;
     padding: 100px 20px;
     outline-offset: -10px;
     -webkit-transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
-    transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
+    transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear
   }
+.data-input .drag.is-dragover {
+  background-color: #c8dadf;
+}
 .data-input .drag .drag__dragndrop {
       display: inline;
-    }
-.data-input .drag .drag.is-dragover {
-      background-color: grey;
-    }
+}
 .data-input .drag .drag__icon {
       width: 100%;
       height: 80px;
-      fill: #92b0b3;
+      fill: #333;
       display: block;
       margin-bottom: 40px;
-    }
+}
 .data-input .drag .drag__file {
       width: 0.1px;
       height: 0.1px;
@@ -359,7 +359,7 @@ template {
       overflow: hidden;
       position: absolute;
       z-index: -1;
-    }
+}
 .data-input .drag .drag__file + label {
       max-width: 80%;
       text-overflow: ellipsis;
@@ -367,7 +367,7 @@ template {
       cursor: pointer;
       display: inline-block;
       overflow: hidden;
-    }
+}
 .data-input .drag .drag__button {
       font-weight: 700;
       color: #e5edf1;
@@ -375,7 +375,7 @@ template {
       display: none;
       padding: 8px 16px;
       margin: 40px auto 0;
-    }
+}
 body {
   padding: 8px;
   padding: 0.5rem;
