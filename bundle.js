@@ -1039,7 +1039,7 @@ function selectColumn(input) {
     return d;
   });
 
-  table.append('tbody').selectAll('tr').data(data).enter().append('tr').selectAll('td').data(function (row) {
+  table.append('tbody').selectAll('tr').data(data.slice(0, 10)).enter().append('tr').selectAll('td').data(function (row) {
     return data.columns.map(function (c) {
       var cell = {};
       cell[c] = row[c];

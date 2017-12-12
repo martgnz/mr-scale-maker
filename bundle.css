@@ -378,10 +378,22 @@ template {
 }
 .data-output table {
     width: 100%;
+    position: relative
   }
+.data-output table:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  height: 80px;
+  height: 5rem;
+  width: 100%;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(white));
+  background-image: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+}
 .data-output table th {
       border-bottom: 1px solid #111;
-    }
+}
 body {
   padding: 8px;
   padding: 0.5rem;
