@@ -1,30 +1,32 @@
-.data-output {
-  table {
-    width: 100%;
-    position: relative;
-
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      height: 5rem;
+#choose {
+  .output {
+    table {
       width: 100%;
-      background-image: linear-gradient(to bottom, transparent, white);
-      pointer-events: none;
-    }
+      position: relative;
 
-    th {
-      cursor: pointer;
-      border-bottom: 1px solid #111;
-
-      &:hover {
-        transition: 0.3s;
-        background: #eee;
-        border-radius: 2px;
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        height: 5rem;
+        width: 100%;
+        background-image: linear-gradient(to bottom, transparent, white);
+        pointer-events: none;
       }
-    }
-    th.checked {
-      background: #eee;
+
+      th {
+        cursor: pointer;
+        border-bottom: 1px solid #111;
+
+        &:hover {
+          transition: 0.3s;
+          background: #eee;
+          border-radius: 2px;
+        }
+      }
+      th.checked {
+        background: #eee;
+      }
     }
   }
 }

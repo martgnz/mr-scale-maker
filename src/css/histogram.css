@@ -1,17 +1,19 @@
-.histogram {
-  .bar {
-    rect {
-      fill: steelblue;
+#visualize {
+  .output {
+    .bar {
+      rect {
+        fill: steelblue;
+      }
+      text {
+        font-family: var(--font);
+        font-weight: 600;
+        font-size: 11px;
+        fill: white;
+      }
     }
-    text {
-      font-family: var(--font);
-      font-weight: 600;
-      font-size: 11px;
-      fill: white;
-    }
-  }
 
-  .x.axis {
-    font-family: var(--font);
+    .x.axis {
+      font-family: var(--font);
+    }
   }
 }

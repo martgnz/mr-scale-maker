@@ -8,10 +8,10 @@
 <body>
 <div id="app">
   <h1>Mr. Scalemaker</h1>
-  
+
   <section id="upload">
     <h2>1. Upload your data</h2>
-    
+
     <div class="data-input">
       <form class="drag" method="post" action="" enctype="multipart/form-data">
         <div class="drag__input">
@@ -20,26 +20,26 @@
           <label for="file"><strong>Choose a csv</strong><span class="drag__dragndrop"> or drag it here</span>.</label>
           <button class="drag__button" type="submit">Upload</button>
         </div>
-        
+
         <div class="drag__uploading">Uploading&hellip;</div>
         <div class="drag__success">Done!</div>
         <div class="drag__error">Error! <span></span>.</div>
       </form>
     </div>
   </section>
-  
+
   <section id="choose" class="hidden">
     <h2>2. Choose the column</h2>
-    
-    <div class="data-output"></div>
+
+    <div class="output"></div>
   </section>
-  
+
   <section id="visualize" class="hidden">
     <h2>3. Visualize the distribution</h2>
-    
-    <div class="histogram"></div>
+
+    <div class="output"></div>
   </section>
-  
+
 </div>
 <script src="bundle.js" charset="utf-8"></script>
 </body>

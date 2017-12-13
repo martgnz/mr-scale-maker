@@ -8,13 +8,13 @@ const app = select('#app');
 const form = app.select('.data-input form');
 
 const choose = app.select('#choose');
-const output = choose.select('.data-output');
+const output = choose.select('.output');
 
 const visualize = app.select('#visualize');
-const chart = visualize.select('.histogram');
+const chart = visualize.select('.output');
 
 const outputs = [];
-outputs.push(output, chart);
+outputs.push(choose, visualize);
 
 let data;
 
@@ -109,7 +109,10 @@ function parseData(data) {
 
 function clear(el) {
   if (!el) {
-    return outputs.forEach(d => d.html(''));
+    return outputs.forEach(d => {
+      d.classed('hidden', true);
+      d.select('.output').html('');
+    });
   }
   return el.html('');
 }
