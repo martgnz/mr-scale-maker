@@ -378,31 +378,45 @@ template {
 }
 #choose .output table {
       width: 100%;
-      position: relative
+      position: relative;
+      overflow: hidden
     }
 #choose .output table:after {
   content: '';
   position: absolute;
   bottom: 0;
-  height: 80px;
-  height: 5rem;
+  height: 48px;
+  height: 3rem;
   width: 100%;
   background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(white));
   background-image: linear-gradient(to bottom, transparent, white);
   pointer-events: none;
 }
-#choose .output table th {
+#choose .output table td,
+      #choose .output table th {
         cursor: pointer;
+        position: relative;
+}
+#choose .output table th {
         border-bottom: 1px solid #111;
 }
-#choose .output table th:hover {
-  -webkit-transition: 0.3s;
-  transition: 0.3s;
-  background: #eee;
-  border-radius: 2px;
+#choose .output table td:hover::after,
+      #choose .output table th:not(:empty):hover::after,
+      #choose .output table td.checked::after,
+      #choose .output table th:not(:empty).checked::after {
+        content: '';
+        height: 10000px;
+        left: 0;
+        position: absolute;
+        top: -5000px;
+        width: 100%;
+        z-index: -1;
 }
-#choose .output table th.checked {
-        background: #eee;
+#choose .output table td:hover::after,
+      #choose .output table th:hover::after,
+      #choose .output table th.checked::after,
+      #choose .output table td.checked::after {
+        background-color: #ffffdd;
 }
 #visualize .output .bar rect {
         fill: steelblue;

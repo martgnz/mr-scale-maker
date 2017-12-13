@@ -5457,24 +5457,47 @@ function selectColumn(input) {
     });
   }).enter().append('td').html(function (d) {
     return Object.values(d);
-  });
+  }).on('click', paintColumn);
 }
 
 function paintColumn(d) {
+  var isRow = select(this).node().nodeName === 'TD';
+  var cellIndex = isRow && select(this).node().cellIndex;
+
+  // If clicked on a row, get the key
+  var c = isRow ? Object.keys(d)[0] : d;
+
+  // First, reset the selected class
   selectAll('.checked').classed('checked', false);
-  select(this).classed('checked', true);
+
+  // Now, highlight the whole column
+  if (isRow) {
+    selectAll('th').nodes().filter(function (z) {
+      return z.textContent === c;
+    }).forEach(function (e) {
+      return e.classList.add('checked');
+    });
+
+    selectAll('td').nodes().filter(function (z) {
+      return z.cellIndex === cellIndex;
+    }).forEach(function (e) {
+      return e.classList.add('checked');
+    });
+  } else {
+    select(this).classed('checked', true);
+  }
 
   visualize.classed('hidden', false);
 
   clear(chart);
-  renderHistogram(chart, data, d);
+  renderHistogram(chart, data, c);
 }
 
-function parseData(data) {
-  var results = Papa.parse(data);
+function parseData(input) {
+  var results = Papa.parse(input);
   var dsv$$1 = dsv(results.meta.delimiter, 'utf-8');
 
-  return dsv$$1.parse(data);
+  return dsv$$1.parse(input);
 }
 
 function clear(el) {
