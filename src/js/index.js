@@ -13,6 +13,9 @@ const output = choose.select('.data-output');
 const visualize = app.select('#visualize');
 const chart = visualize.select('.histogram');
 
+const outputs = [];
+outputs.push(output, chart);
+
 let data;
 
 form
@@ -40,6 +43,7 @@ function dropped() {
     reader.readAsText(file);
 
     reader.onload = () => {
+      clear();
       selectColumn(reader.result);
     };
   }
@@ -52,9 +56,6 @@ function selectColumn(input) {
 
   // Parse the dropped data
   data = parseData(input);
-
-  // Remove table if exists
-  output.selectAll('table').remove();
 
   // Based on Gregor Aisch's table implementation
   // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
@@ -95,6 +96,7 @@ function paintColumn(d) {
 
   visualize.classed('hidden', false);
 
+  clear(chart);
   renderHistogram(chart, data, d);
 }
 
@@ -103,4 +105,11 @@ function parseData(data) {
   const dsv = dsvFormat(results.meta.delimiter, 'utf-8');
 
   return dsv.parse(data);
+}
+
+function clear(el) {
+  if (!el) {
+    return outputs.forEach(d => d.html(''));
+  }
+  return el.html('');
 }

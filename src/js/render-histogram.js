@@ -3,8 +3,6 @@ import { extent, histogram, max } from 'd3-array';
 import { axisBottom } from 'd3-axis';
 
 export default function(div, data, column) {
-  div.html('');
-
   data.forEach(d => {
     d[column] = +d[column];
   });
