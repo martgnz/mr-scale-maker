@@ -5399,13 +5399,13 @@ var app = select('#app');
 var form = app.select('.data-input form');
 
 var choose = app.select('#choose');
-var output = choose.select('.data-output');
+var output = choose.select('.output');
 
 var visualize = app.select('#visualize');
-var chart = visualize.select('.histogram');
+var chart = visualize.select('.output');
 
 var outputs = [];
-outputs.push(output, chart);
+outputs.push(choose, visualize);
 
 var data = void 0;
 
@@ -5480,7 +5480,8 @@ function parseData(data) {
 function clear(el) {
   if (!el) {
     return outputs.forEach(function (d) {
-      return d.html('');
+      d.classed('hidden', true);
+      d.select('.output').html('');
     });
   }
   return el.html('');
