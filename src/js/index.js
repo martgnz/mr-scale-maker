@@ -1,9 +1,9 @@
 import { select, selectAll, event } from 'd3-selection';
-import { csvParse } from 'd3-dsv';
+import { dsvFormat } from 'd3-dsv';
+import 'papaparse';
 
 import renderHistogram from './render-histogram';
 
-// const data = csvParse(sampleData)
 const app = select('#app');
 const form = app.select('.data-input form');
 
@@ -21,7 +21,7 @@ form
     () => {
       event.preventDefault();
       event.stopPropagation();
-    },
+    }
   )
   .on('dragover dragenter', () => {
     form.classed('is-dragover', true);
@@ -51,7 +51,7 @@ function selectColumn(input) {
   choose.classed('hidden', false);
 
   // Parse the dropped data
-  data = csvParse(input);
+  data = parseData(input);
 
   // Based on Gregor Aisch's table implementation
   // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
@@ -79,7 +79,7 @@ function selectColumn(input) {
         const cell = {};
         cell[c] = row[c];
         return cell;
-      }),
+      })
     )
     .enter()
     .append('td')
@@ -93,4 +93,11 @@ function paintColumn(d) {
   visualize.classed('hidden', false);
 
   renderHistogram(chart, data, d);
+}
+
+function parseData(data) {
+  const results = Papa.parse(data);
+  const dsv = dsvFormat(results.meta.delimiter, 'utf-8');
+
+  return dsv.parse(data);
 }

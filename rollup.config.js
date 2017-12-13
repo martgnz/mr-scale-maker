@@ -8,6 +8,9 @@ export default {
     format: 'iife',
     name: 'bundle',
   },
+  moduleContext: {
+    './node_modules/papaparse/papaparse.js': 'window'
+  },
   plugins: [
     resolve(),
     babel({

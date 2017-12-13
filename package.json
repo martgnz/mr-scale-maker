@@ -37,6 +37,7 @@
     "d3-axis": "^1.0.8",
     "d3-dsv": "^1.0.8",
     "d3-scale": "^1.0.7",
-    "d3-selection": "^1.2.0"
+    "d3-selection": "^1.2.0",
+    "papaparse": "^4.3.6"
   }
 }
