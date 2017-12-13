@@ -5358,8 +5358,6 @@ function axisBottom(scale) {
 }
 
 var renderHistogram = function (div, data, column) {
-  div.html('');
-
   data.forEach(function (d) {
     d[column] = +d[column];
   });
@@ -5406,6 +5404,9 @@ var output = choose.select('.data-output');
 var visualize = app.select('#visualize');
 var chart = visualize.select('.histogram');
 
+var outputs = [];
+outputs.push(output, chart);
+
 var data = void 0;
 
 form.on('drag dragstart dragend.default dragover.default dragenter.default dragleave.default drop.default', function () {
@@ -5426,6 +5427,7 @@ function dropped() {
     reader.readAsText(file);
 
     reader.onload = function () {
+      clear();
       selectColumn(reader.result);
     };
   }
@@ -5438,9 +5440,6 @@ function selectColumn(input) {
 
   // Parse the dropped data
   data = parseData(input);
-
-  // Remove table if exists
-  output.selectAll('table').remove();
 
   // Based on Gregor Aisch's table implementation
   // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
@@ -5467,6 +5466,7 @@ function paintColumn(d) {
 
   visualize.classed('hidden', false);
 
+  clear(chart);
   renderHistogram(chart, data, d);
 }
 
@@ -5475,6 +5475,15 @@ function parseData(data) {
   var dsv$$1 = dsv(results.meta.delimiter, 'utf-8');
 
   return dsv$$1.parse(data);
+}
+
+function clear(el) {
+  if (!el) {
+    return outputs.forEach(function (d) {
+      return d.html('');
+    });
+  }
+  return el.html('');
 }
 
 }());
