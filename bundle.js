@@ -5439,6 +5439,9 @@ function selectColumn(input) {
   // Parse the dropped data
   data = parseData(input);
 
+  // Remove table if exists
+  output.selectAll('table').remove();
+
   // Based on Gregor Aisch's table implementation
   // https://www.vis4.net/blog/2015/04/making-html-tables-in-d3-doesnt-need-to-be-a-pain/
   var table = output.append('table');
