@@ -3,29 +3,46 @@
     table {
       width: 100%;
       position: relative;
+      overflow: hidden;
 
       &:after {
         content: '';
         position: absolute;
         bottom: 0;
-        height: 5rem;
+        height: 3rem;
         width: 100%;
         background-image: linear-gradient(to bottom, transparent, white);
         pointer-events: none;
       }
 
+      td,
       th {
         cursor: pointer;
-        border-bottom: 1px solid #111;
-
-        &:hover {
-          transition: 0.3s;
-          background: #eee;
-          border-radius: 2px;
-        }
+        position: relative;
       }
-      th.checked {
-        background: #eee;
+
+      th {
+        border-bottom: 1px solid #111;
+      }
+
+      td:hover::after,
+      th:not(:empty):hover::after,
+      td.checked::after,
+      th:not(:empty).checked::after {
+        content: '';
+        height: 10000px;
+        left: 0;
+        position: absolute;
+        top: -5000px;
+        width: 100%;
+        z-index: -1;
+      }
+
+      td:hover::after,
+      th:hover::after,
+      th.checked::after,
+      td.checked::after {
+        background-color: #ffffdd;
       }
     }
   }

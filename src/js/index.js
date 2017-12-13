@@ -24,7 +24,7 @@ form
     () => {
       event.preventDefault();
       event.stopPropagation();
-    }
+    },
   )
   .on('dragover dragenter', () => {
     form.classed('is-dragover', true);
@@ -83,28 +83,50 @@ function selectColumn(input) {
         const cell = {};
         cell[c] = row[c];
         return cell;
-      })
+      }),
     )
     .enter()
     .append('td')
-    .html(d => Object.values(d));
+    .html(d => Object.values(d))
+    .on('click', paintColumn);
 }
 
 function paintColumn(d) {
+  const isRow = select(this).node().nodeName === 'TD';
+  const cellIndex = isRow && select(this).node().cellIndex;
+
+  // If clicked on a row, get the key
+  const c = isRow ? Object.keys(d)[0] : d;
+
+  // First, reset the selected class
   selectAll('.checked').classed('checked', false);
-  select(this).classed('checked', true);
+
+  // Now, highlight the whole column
+  if (isRow) {
+    selectAll('th')
+      .nodes()
+      .filter(z => z.textContent === c)
+      .forEach(e => e.classList.add('checked'));
+
+    selectAll('td')
+      .nodes()
+      .filter(z => z.cellIndex === cellIndex)
+      .forEach(e => e.classList.add('checked'));
+  } else {
+    select(this).classed('checked', true);
+  }
 
   visualize.classed('hidden', false);
 
   clear(chart);
-  renderHistogram(chart, data, d);
+  renderHistogram(chart, data, c);
 }
 
-function parseData(data) {
-  const results = Papa.parse(data);
+function parseData(input) {
+  const results = Papa.parse(input);
   const dsv = dsvFormat(results.meta.delimiter, 'utf-8');
 
-  return dsv.parse(data);
+  return dsv.parse(input);
 }
 
 function clear(el) {

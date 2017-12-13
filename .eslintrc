@@ -2,6 +2,7 @@
   "extends": ["airbnb-base", "prettier"],
   "globals": {
     "FileReader": true,
+    "Papa": true
   },
   "rules": {
     "no-use-before-define": "off",
