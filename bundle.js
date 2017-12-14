@@ -2614,6 +2614,10 @@ function ascendingComparator(f) {
 var ascendingBisect = bisector(ascending$1);
 var bisectRight = ascendingBisect.right;
 
+var number = function(x) {
+  return x === null ? NaN : +x;
+};
+
 var extent = function(values, valueof) {
   var n = values.length,
       i = -1,
@@ -2801,6 +2805,19 @@ var histogram = function() {
   };
 
   return histogram;
+};
+
+var threshold = function(values, p, valueof) {
+  if (valueof == null) valueof = number;
+  if (!(n = values.length)) return;
+  if ((p = +p) <= 0 || n < 2) return +valueof(values[0], 0, values);
+  if (p >= 1) return +valueof(values[n - 1], n - 1, values);
+  var n,
+      i = (n - 1) * p,
+      i0 = Math.floor(i),
+      value0 = +valueof(values[i0], i0, values),
+      value1 = +valueof(values[i0 + 1], i0 + 1, values);
+  return value0 + (value1 - value0) * (i - i0);
 };
 
 var max = function(values, valueof) {
@@ -4204,6 +4221,86 @@ function linear() {
   return linearish(scale);
 }
 
+function quantile$$1() {
+  var domain = [],
+      range = [],
+      thresholds = [];
+
+  function rescale() {
+    var i = 0, n = Math.max(1, range.length);
+    thresholds = new Array(n - 1);
+    while (++i < n) thresholds[i - 1] = threshold(domain, i / n);
+    return scale;
+  }
+
+  function scale(x) {
+    if (!isNaN(x = +x)) return range[bisectRight(thresholds, x)];
+  }
+
+  scale.invertExtent = function(y) {
+    var i = range.indexOf(y);
+    return i < 0 ? [NaN, NaN] : [
+      i > 0 ? thresholds[i - 1] : domain[0],
+      i < thresholds.length ? thresholds[i] : domain[domain.length - 1]
+    ];
+  };
+
+  scale.domain = function(_) {
+    if (!arguments.length) return domain.slice();
+    domain = [];
+    for (var i = 0, n = _.length, d; i < n; ++i) if (d = _[i], d != null && !isNaN(d = +d)) domain.push(d);
+    domain.sort(ascending$1);
+    return rescale();
+  };
+
+  scale.range = function(_) {
+    return arguments.length ? (range = slice$1.call(_), rescale()) : range.slice();
+  };
+
+  scale.quantiles = function() {
+    return thresholds.slice();
+  };
+
+  scale.copy = function() {
+    return quantile$$1()
+        .domain(domain)
+        .range(range);
+  };
+
+  return scale;
+}
+
+function threshold$1() {
+  var domain = [0.5],
+      range = [0, 1],
+      n = 1;
+
+  function scale(x) {
+    if (x <= x) return range[bisectRight(domain, x, 0, n)];
+  }
+
+  scale.domain = function(_) {
+    return arguments.length ? (domain = slice$1.call(_), n = Math.min(domain.length, range.length - 1), scale) : domain.slice();
+  };
+
+  scale.range = function(_) {
+    return arguments.length ? (range = slice$1.call(_), n = Math.min(domain.length, range.length - 1), scale) : range.slice();
+  };
+
+  scale.invertExtent = function(y) {
+    var i = range.indexOf(y);
+    return [domain[i - 1], domain[i]];
+  };
+
+  scale.copy = function() {
+    return threshold$1()
+        .domain(domain)
+        .range(range);
+  };
+
+  return scale;
+}
+
 var t0$1 = new Date;
 var t1$1 = new Date;
 
@@ -5357,20 +5454,52 @@ function axisBottom(scale) {
   return axis(bottom, scale);
 }
 
+function axisLeft(scale) {
+  return axis(left, scale);
+}
+
+var computeBreaks = function (data, column) {
+  var breaks = {};
+
+  var quantiles = quantile$$1().range([0, 1, 2, 3, 4]).domain(extent(data, function (d) {
+    return d[column];
+  })).quantiles();
+
+  breaks.quantiles = quantiles;
+
+  return breaks;
+};
+
 var renderHistogram = function (div, data, column) {
   data.forEach(function (d) {
     d[column] = +d[column];
   });
 
-  var margin = { top: 20, right: 10, bottom: 20, left: 10 };
+  var scales = ['quantiles', 'equal breaks', 'jenks'];
+  var breaks = computeBreaks(data, column);
+
+  // TODO: config
+  var SELECTED_SCALE = 'quantiles';
+  var SELECTED_BINS = 40;
+
+  // TODO: config
+  var color = threshold$1().range(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']).domain(breaks[SELECTED_SCALE]);
+
+  var margin = { top: 20, right: 10, bottom: 20, left: 30 };
   var width = div.node().getBoundingClientRect().width - margin.left - margin.right;
   var height = 200 - margin.top - margin.bottom;
+
+  div.append('div').attr('class', 'btn-group').selectAll('button').data(scales).enter().append('button').attr('class', 'btn').classed('active', function (d) {
+    return d === SELECTED_SCALE;
+  }).text(function (d) {
+    return d;
+  });
 
   var x = linear().range([0, width]).domain(extent(data, function (d) {
     return d[column];
   }));
 
-  var bins = histogram().domain(x.domain()).thresholds(x.ticks(20))(data.map(function (d) {
+  var bins = histogram().domain(x.domain()).thresholds(x.ticks(SELECTED_BINS))(data.map(function (d) {
     return d[column];
   }));
 
@@ -5380,19 +5509,27 @@ var renderHistogram = function (div, data, column) {
 
   var svg = div.append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  var bar = svg.selectAll('.bar').data(bins).enter().append('g').attr('class', 'bar').attr('transform', function (d) {
+  var bar = svg.append('g').attr('class', 'bars').selectAll('.bar').data(bins).enter().append('g').attr('class', 'bar').attr('transform', function (d) {
     return 'translate(' + x(d.x0) + ', ' + y(d.length) + ')';
   });
 
-  bar.append('rect').attr('x', 1).attr('width', x(bins[0].x1) - x(bins[0].x0) - 1).attr('height', function (d) {
+  // FIXME: the color should be go *over* the bars
+  bar.append('rect').attr('width', x(bins[0].x1) - x(bins[0].x0)).attr('height', function (d) {
     return height - y(d.length);
+  }).attr('fill', function (d) {
+    return d ? color(max(d)) : '#ccc';
   });
 
-  bar.append('text').attr('dy', '.75em').attr('y', 6).attr('x', (x(bins[0].x1) - x(bins[0].x0)) / 2).attr('text-anchor', 'middle').text(function (d) {
-    return d.length;
-  });
+  // Render break dividers
+  svg.append('g').attr('class', 'breaks').selectAll('line').data(breaks[SELECTED_SCALE]).enter().append('line').attr('x1', function (d) {
+    return x(d);
+  }).attr('x2', function (d) {
+    return x(d);
+  }).attr('y1', 0).attr('y2', height).attr('stroke', 'black');
 
   svg.append('g').attr('class', 'axis x').attr('transform', 'translate(0, ' + height + ')').call(axisBottom(x));
+
+  svg.append('g').attr('class', 'axis y').call(axisLeft(y).ticks(4));
 };
 
 var app = select('#app');
