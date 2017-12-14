@@ -9,7 +9,7 @@ export default {
     name: 'bundle',
   },
   moduleContext: {
-    './node_modules/papaparse/papaparse.js': 'window'
+    './node_modules/papaparse/papaparse.js': 'window',
   },
   plugins: [
     resolve(),

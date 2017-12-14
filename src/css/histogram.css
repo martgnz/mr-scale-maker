@@ -1,9 +1,8 @@
 #visualize {
   .output {
+    position: relative;
+
     .bar {
-      rect {
-        fill: steelblue;
-      }
       text {
         font-family: var(--font);
         font-weight: 600;
@@ -14,6 +13,11 @@
 
     .x.axis {
       font-family: var(--font);
+    }
+
+    .btn-group {
+      position: absolute;
+      right: 0;
     }
   }
 }
