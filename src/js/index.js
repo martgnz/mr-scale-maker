@@ -120,7 +120,7 @@ function paintColumn(d) {
     select(this).classed('checked', true);
   }
 
-  if (!isNaN(data[0][c])) {
+  if (!Number.isNaN(Number(data[0][c]))) {
     visualize.classed('hidden', false);
     renderHistogram(chart, data, c);
   }
