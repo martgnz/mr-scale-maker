@@ -24,7 +24,7 @@ form
     () => {
       event.preventDefault();
       event.stopPropagation();
-    },
+    }
   )
   .on('dragover dragenter', () => {
     form.classed('is-dragover', true);
@@ -83,7 +83,7 @@ function selectColumn(input) {
         const cell = {};
         cell[c] = row[c];
         return cell;
-      }),
+      })
     )
     .enter()
     .append('td')
@@ -97,6 +97,10 @@ function paintColumn(d) {
 
   // If clicked on a row, get the key
   const c = isRow ? Object.keys(d)[0] : d;
+
+  // Hide chart output until draw a new one
+  visualize.classed('hidden', true);
+  clear(chart);
 
   // First, reset the selected class
   selectAll('.checked').classed('checked', false);
@@ -116,10 +120,10 @@ function paintColumn(d) {
     select(this).classed('checked', true);
   }
 
-  visualize.classed('hidden', false);
-
-  clear(chart);
-  renderHistogram(chart, data, c);
+  if (!isNaN(data[0][c])) {
+    visualize.classed('hidden', false);
+    renderHistogram(chart, data, c);
+  }
 }
 
 function parseData(input) {
