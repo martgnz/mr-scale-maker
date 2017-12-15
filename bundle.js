@@ -5461,7 +5461,7 @@ function axisLeft(scale) {
 var computeBreaks = function (data, column) {
   var breaks = {};
 
-  var quantiles = quantile$$1().range([0, 1, 2, 3, 4]).domain(extent(data, function (d) {
+  var quantiles = quantile$$1().range([0, 1, 2, 3, 4]).domain(data.map(function (d) {
     return d[column];
   })).quantiles();
 
@@ -5628,7 +5628,7 @@ function paintColumn(d) {
     select(this).classed('checked', true);
   }
 
-  if (!isNaN(data[0][c])) {
+  if (!Number.isNaN(Number(data[0][c]))) {
     visualize.classed('hidden', false);
     renderHistogram(chart, data, c);
   }
