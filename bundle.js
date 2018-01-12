@@ -2855,6 +2855,55 @@ var max = function(values, valueof) {
   return max;
 };
 
+var mean = function(values, valueof) {
+  var n = values.length,
+      m = n,
+      i = -1,
+      value,
+      sum = 0;
+
+  if (valueof == null) {
+    while (++i < n) {
+      if (!isNaN(value = number(values[i]))) sum += value;
+      else --m;
+    }
+  }
+
+  else {
+    while (++i < n) {
+      if (!isNaN(value = number(valueof(values[i], i, values)))) sum += value;
+      else --m;
+    }
+  }
+
+  if (m) return sum / m;
+};
+
+var median = function(values, valueof) {
+  var n = values.length,
+      i = -1,
+      value,
+      numbers = [];
+
+  if (valueof == null) {
+    while (++i < n) {
+      if (!isNaN(value = number(values[i]))) {
+        numbers.push(value);
+      }
+    }
+  }
+
+  else {
+    while (++i < n) {
+      if (!isNaN(value = number(valueof(values[i], i, values)))) {
+        numbers.push(value);
+      }
+    }
+  }
+
+  return threshold(numbers.sort(ascending$1), 0.5);
+};
+
 var prefix = "$";
 
 function Map() {}
@@ -5458,6 +5507,307 @@ function axisLeft(scale) {
   return axis(left, scale);
 }
 
+// Computes the decimal coefficient and exponent of the specified number x with
+// significant digits p, where x is positive and p is in [1, 21] or undefined.
+// For example, formatDecimal(1.23) returns ["123", 0].
+var formatDecimal$1 = function(x, p) {
+  if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0) return null; // NaN, ±Infinity
+  var i, coefficient = x.slice(0, i);
+
+  // The string returned by toExponential either has the form \d\.\d+e[-+]\d+
+  // (e.g., 1.2e+3) or the form \de[-+]\d+ (e.g., 1e+3).
+  return [
+    coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient,
+    +x.slice(i + 1)
+  ];
+};
+
+var exponent$1 = function(x) {
+  return x = formatDecimal$1(Math.abs(x)), x ? x[1] : NaN;
+};
+
+var formatGroup$1 = function(grouping, thousands) {
+  return function(value, width) {
+    var i = value.length,
+        t = [],
+        j = 0,
+        g = grouping[0],
+        length = 0;
+
+    while (i > 0 && g > 0) {
+      if (length + g + 1 > width) g = Math.max(1, width - length);
+      t.push(value.substring(i -= g, i + g));
+      if ((length += g + 1) > width) break;
+      g = grouping[j = (j + 1) % grouping.length];
+    }
+
+    return t.reverse().join(thousands);
+  };
+};
+
+var formatNumerals$1 = function(numerals) {
+  return function(value) {
+    return value.replace(/[0-9]/g, function(i) {
+      return numerals[+i];
+    });
+  };
+};
+
+var formatDefault$1 = function(x, p) {
+  x = x.toPrecision(p);
+
+  out: for (var n = x.length, i = 1, i0 = -1, i1; i < n; ++i) {
+    switch (x[i]) {
+      case ".": i0 = i1 = i; break;
+      case "0": if (i0 === 0) i0 = i; i1 = i; break;
+      case "e": break out;
+      default: if (i0 > 0) i0 = 0; break;
+    }
+  }
+
+  return i0 > 0 ? x.slice(0, i0) + x.slice(i1 + 1) : x;
+};
+
+var prefixExponent$1;
+
+var formatPrefixAuto$1 = function(x, p) {
+  var d = formatDecimal$1(x, p);
+  if (!d) return x + "";
+  var coefficient = d[0],
+      exponent = d[1],
+      i = exponent - (prefixExponent$1 = Math.max(-8, Math.min(8, Math.floor(exponent / 3))) * 3) + 1,
+      n = coefficient.length;
+  return i === n ? coefficient
+      : i > n ? coefficient + new Array(i - n + 1).join("0")
+      : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i)
+      : "0." + new Array(1 - i).join("0") + formatDecimal$1(x, Math.max(0, p + i - 1))[0]; // less than 1y!
+};
+
+var formatRounded$1 = function(x, p) {
+  var d = formatDecimal$1(x, p);
+  if (!d) return x + "";
+  var coefficient = d[0],
+      exponent = d[1];
+  return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient
+      : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1)
+      : coefficient + new Array(exponent - coefficient.length + 2).join("0");
+};
+
+var formatTypes$1 = {
+  "": formatDefault$1,
+  "%": function(x, p) { return (x * 100).toFixed(p); },
+  "b": function(x) { return Math.round(x).toString(2); },
+  "c": function(x) { return x + ""; },
+  "d": function(x) { return Math.round(x).toString(10); },
+  "e": function(x, p) { return x.toExponential(p); },
+  "f": function(x, p) { return x.toFixed(p); },
+  "g": function(x, p) { return x.toPrecision(p); },
+  "o": function(x) { return Math.round(x).toString(8); },
+  "p": function(x, p) { return formatRounded$1(x * 100, p); },
+  "r": formatRounded$1,
+  "s": formatPrefixAuto$1,
+  "X": function(x) { return Math.round(x).toString(16).toUpperCase(); },
+  "x": function(x) { return Math.round(x).toString(16); }
+};
+
+// [[fill]align][sign][symbol][0][width][,][.precision][type]
+var re$1 = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
+
+function formatSpecifier$1(specifier) {
+  return new FormatSpecifier$1(specifier);
+}
+
+formatSpecifier$1.prototype = FormatSpecifier$1.prototype; // instanceof
+
+function FormatSpecifier$1(specifier) {
+  if (!(match = re$1.exec(specifier))) throw new Error("invalid format: " + specifier);
+
+  var match,
+      fill = match[1] || " ",
+      align = match[2] || ">",
+      sign = match[3] || "-",
+      symbol = match[4] || "",
+      zero = !!match[5],
+      width = match[6] && +match[6],
+      comma = !!match[7],
+      precision = match[8] && +match[8].slice(1),
+      type = match[9] || "";
+
+  // The "n" type is an alias for ",g".
+  if (type === "n") comma = true, type = "g";
+
+  // Map invalid types to the default format.
+  else if (!formatTypes$1[type]) type = "";
+
+  // If zero fill is specified, padding goes after sign and before digits.
+  if (zero || (fill === "0" && align === "=")) zero = true, fill = "0", align = "=";
+
+  this.fill = fill;
+  this.align = align;
+  this.sign = sign;
+  this.symbol = symbol;
+  this.zero = zero;
+  this.width = width;
+  this.comma = comma;
+  this.precision = precision;
+  this.type = type;
+}
+
+FormatSpecifier$1.prototype.toString = function() {
+  return this.fill
+      + this.align
+      + this.sign
+      + this.symbol
+      + (this.zero ? "0" : "")
+      + (this.width == null ? "" : Math.max(1, this.width | 0))
+      + (this.comma ? "," : "")
+      + (this.precision == null ? "" : "." + Math.max(0, this.precision | 0))
+      + this.type;
+};
+
+var identity$5 = function(x) {
+  return x;
+};
+
+var prefixes$1 = ["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];
+
+var formatLocale$2 = function(locale) {
+  var group = locale.grouping && locale.thousands ? formatGroup$1(locale.grouping, locale.thousands) : identity$5,
+      currency = locale.currency,
+      decimal = locale.decimal,
+      numerals = locale.numerals ? formatNumerals$1(locale.numerals) : identity$5,
+      percent = locale.percent || "%";
+
+  function newFormat(specifier) {
+    specifier = formatSpecifier$1(specifier);
+
+    var fill = specifier.fill,
+        align = specifier.align,
+        sign = specifier.sign,
+        symbol = specifier.symbol,
+        zero = specifier.zero,
+        width = specifier.width,
+        comma = specifier.comma,
+        precision = specifier.precision,
+        type = specifier.type;
+
+    // Compute the prefix and suffix.
+    // For SI-prefix, the suffix is lazily computed.
+    var prefix = symbol === "$" ? currency[0] : symbol === "#" && /[boxX]/.test(type) ? "0" + type.toLowerCase() : "",
+        suffix = symbol === "$" ? currency[1] : /[%p]/.test(type) ? percent : "";
+
+    // What format function should we use?
+    // Is this an integer type?
+    // Can this type generate exponential notation?
+    var formatType = formatTypes$1[type],
+        maybeSuffix = !type || /[defgprs%]/.test(type);
+
+    // Set the default precision if not specified,
+    // or clamp the specified precision to the supported range.
+    // For significant precision, it must be in [1, 21].
+    // For fixed precision, it must be in [0, 20].
+    precision = precision == null ? (type ? 6 : 12)
+        : /[gprs]/.test(type) ? Math.max(1, Math.min(21, precision))
+        : Math.max(0, Math.min(20, precision));
+
+    function format(value) {
+      var valuePrefix = prefix,
+          valueSuffix = suffix,
+          i, n, c;
+
+      if (type === "c") {
+        valueSuffix = formatType(value) + valueSuffix;
+        value = "";
+      } else {
+        value = +value;
+
+        // Perform the initial formatting.
+        var valueNegative = value < 0;
+        value = formatType(Math.abs(value), precision);
+
+        // If a negative value rounds to zero during formatting, treat as positive.
+        if (valueNegative && +value === 0) valueNegative = false;
+
+        // Compute the prefix and suffix.
+        valuePrefix = (valueNegative ? (sign === "(" ? sign : "-") : sign === "-" || sign === "(" ? "" : sign) + valuePrefix;
+        valueSuffix = (type === "s" ? prefixes$1[8 + prefixExponent$1 / 3] : "") + valueSuffix + (valueNegative && sign === "(" ? ")" : "");
+
+        // Break the formatted value into the integer “value” part that can be
+        // grouped, and fractional or exponential “suffix” part that is not.
+        if (maybeSuffix) {
+          i = -1, n = value.length;
+          while (++i < n) {
+            if (c = value.charCodeAt(i), 48 > c || c > 57) {
+              valueSuffix = (c === 46 ? decimal + value.slice(i + 1) : value.slice(i)) + valueSuffix;
+              value = value.slice(0, i);
+              break;
+            }
+          }
+        }
+      }
+
+      // If the fill character is not "0", grouping is applied before padding.
+      if (comma && !zero) value = group(value, Infinity);
+
+      // Compute the padding.
+      var length = valuePrefix.length + value.length + valueSuffix.length,
+          padding = length < width ? new Array(width - length + 1).join(fill) : "";
+
+      // If the fill character is "0", grouping is applied after padding.
+      if (comma && zero) value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
+
+      // Reconstruct the final output based on the desired alignment.
+      switch (align) {
+        case "<": value = valuePrefix + value + valueSuffix + padding; break;
+        case "=": value = valuePrefix + padding + value + valueSuffix; break;
+        case "^": value = padding.slice(0, length = padding.length >> 1) + valuePrefix + value + valueSuffix + padding.slice(length); break;
+        default: value = padding + valuePrefix + value + valueSuffix; break;
+      }
+
+      return numerals(value);
+    }
+
+    format.toString = function() {
+      return specifier + "";
+    };
+
+    return format;
+  }
+
+  function formatPrefix(specifier, value) {
+    var f = newFormat((specifier = formatSpecifier$1(specifier), specifier.type = "f", specifier)),
+        e = Math.max(-8, Math.min(8, Math.floor(exponent$1(value) / 3))) * 3,
+        k = Math.pow(10, -e),
+        prefix = prefixes$1[8 + e / 3];
+    return function(value) {
+      return f(k * value) + prefix;
+    };
+  }
+
+  return {
+    format: newFormat,
+    formatPrefix: formatPrefix
+  };
+};
+
+var locale$2;
+var format$1;
+var formatPrefix$1;
+
+defaultLocale$2({
+  decimal: ".",
+  thousands: ",",
+  grouping: [3],
+  currency: ["$", ""]
+});
+
+function defaultLocale$2(definition) {
+  locale$2 = formatLocale$2(definition);
+  format$1 = locale$2.format;
+  formatPrefix$1 = locale$2.formatPrefix;
+  return locale$2;
+}
+
 var computeBreaks = function (data, column) {
   var breaks = {};
 
@@ -5465,7 +5815,21 @@ var computeBreaks = function (data, column) {
     return d[column];
   })).quantiles();
 
+  var medians = median(data.map(function (d) {
+    return d[column];
+  }));
+  var means = mean(data.map(function (d) {
+    return d[column];
+  }));
+
   breaks.quantiles = quantiles;
+  breaks.statistics = [{
+    label: 'Median',
+    value: medians
+  }, {
+    label: 'Mean',
+    value: means
+  }];
 
   return breaks;
 };
@@ -5478,16 +5842,20 @@ var renderHistogram = function (div, data, column) {
   var scales = ['quantiles', 'equal breaks', 'jenks'];
   var breaks = computeBreaks(data, column);
 
+  var formatter = format$1('.4');
+
+  console.log(breaks);
+
   // TODO: config
   var SELECTED_SCALE = 'quantiles';
-  var SELECTED_BINS = 40;
+  var SELECTED_BINS = 20;
 
   // TODO: config
   var color = threshold$1().range(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']).domain(breaks[SELECTED_SCALE]);
 
-  var margin = { top: 20, right: 10, bottom: 20, left: 30 };
+  var margin = { top: 60, right: 10, bottom: 20, left: 30 };
   var width = div.node().getBoundingClientRect().width - margin.left - margin.right;
-  var height = 200 - margin.top - margin.bottom;
+  var height = 300 - margin.top - margin.bottom;
 
   div.append('div').attr('class', 'btn-group').selectAll('button').data(scales).enter().append('button').attr('class', 'btn').classed('active', function (d) {
     return d === SELECTED_SCALE;
@@ -5518,19 +5886,951 @@ var renderHistogram = function (div, data, column) {
     return height - y(d.length);
   }).attr('fill', function (d) {
     return d ? color(max(d)) : '#ccc';
+  }).attr('stroke', function (d) {
+    return d ? color(max(d)) : '#ccc';
   });
 
   // Render break dividers
-  svg.append('g').attr('class', 'breaks').selectAll('line').data(breaks[SELECTED_SCALE]).enter().append('line').attr('x1', function (d) {
+  var lines = svg.append('g').attr('class', 'breaks').selectAll('g').data(breaks[SELECTED_SCALE]).enter().append('g');
+
+  lines.append('line').attr('x1', function (d) {
     return x(d);
   }).attr('x2', function (d) {
     return x(d);
   }).attr('y1', 0).attr('y2', height).attr('stroke', 'black');
 
+  lines.append('text').attr('x', function (d) {
+    return x(d);
+  }).attr('dy', 9).attr('dx', -4)
+  // .attr('dy', -5)
+  // .attr('transform', d => `rotate(-90, ${x(d)}, 0)`)
+  .attr('text-anchor', 'end').text(function (d) {
+    return formatter(d);
+  });
+
+  // Render statistical values
+  var statistics = svg.append('g').attr('class', 'statistics').selectAll('g').data(breaks.statistics).enter().append('g').attr('transform', function (d) {
+    return 'translate(' + x(d.value) + ', -30)';
+  });
+
+  statistics.append('text').attr('text-anchor', 'middle').text(function (d) {
+    return d.label;
+  });
+
+  statistics.append('text').attr('dy', 12).attr('text-anchor', 'middle').text(function (d) {
+    return formatter(d.value);
+  });
+
+  statistics.append('text').attr('dy', 23).attr('text-anchor', 'middle').text('▼');
+
   svg.append('g').attr('class', 'axis x').attr('transform', 'translate(0, ' + height + ')').call(axisBottom(x));
 
   svg.append('g').attr('class', 'axis y').call(axisLeft(y).ticks(4));
 };
+
+var data$1 = [{
+  sepalLength: 5.1,
+  sepalWidth: 3.5,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 3.0,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.7,
+  sepalWidth: 3.2,
+  petalLength: 1.3,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.6,
+  sepalWidth: 3.1,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.6,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.9,
+  petalLength: 1.7,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 4.6,
+  sepalWidth: 3.4,
+  petalLength: 1.4,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.4,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.4,
+  sepalWidth: 2.9,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 3.1,
+  petalLength: 1.5,
+  petalWidth: 0.1,
+  species: 'setosa'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.7,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.8,
+  sepalWidth: 3.4,
+  petalLength: 1.6,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.8,
+  sepalWidth: 3.0,
+  petalLength: 1.4,
+  petalWidth: 0.1,
+  species: 'setosa'
+}, {
+  sepalLength: 4.3,
+  sepalWidth: 3.0,
+  petalLength: 1.1,
+  petalWidth: 0.1,
+  species: 'setosa'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 4.0,
+  petalLength: 1.2,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 4.4,
+  petalLength: 1.5,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.9,
+  petalLength: 1.3,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.5,
+  petalLength: 1.4,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 3.8,
+  petalLength: 1.7,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.8,
+  petalLength: 1.5,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.4,
+  petalLength: 1.7,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.7,
+  petalLength: 1.5,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 4.6,
+  sepalWidth: 3.6,
+  petalLength: 1.0,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.3,
+  petalLength: 1.7,
+  petalWidth: 0.5,
+  species: 'setosa'
+}, {
+  sepalLength: 4.8,
+  sepalWidth: 3.4,
+  petalLength: 1.9,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.0,
+  petalLength: 1.6,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.4,
+  petalLength: 1.6,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 5.2,
+  sepalWidth: 3.5,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.2,
+  sepalWidth: 3.4,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.7,
+  sepalWidth: 3.2,
+  petalLength: 1.6,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.8,
+  sepalWidth: 3.1,
+  petalLength: 1.6,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.4,
+  petalLength: 1.5,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 5.2,
+  sepalWidth: 4.1,
+  petalLength: 1.5,
+  petalWidth: 0.1,
+  species: 'setosa'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 4.2,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 3.1,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.2,
+  petalLength: 1.2,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 3.5,
+  petalLength: 1.3,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 3.6,
+  petalLength: 1.4,
+  petalWidth: 0.1,
+  species: 'setosa'
+}, {
+  sepalLength: 4.4,
+  sepalWidth: 3.0,
+  petalLength: 1.3,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.4,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.5,
+  petalLength: 1.3,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 4.5,
+  sepalWidth: 2.3,
+  petalLength: 1.3,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 4.4,
+  sepalWidth: 3.2,
+  petalLength: 1.3,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.5,
+  petalLength: 1.6,
+  petalWidth: 0.6,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.8,
+  petalLength: 1.9,
+  petalWidth: 0.4,
+  species: 'setosa'
+}, {
+  sepalLength: 4.8,
+  sepalWidth: 3.0,
+  petalLength: 1.4,
+  petalWidth: 0.3,
+  species: 'setosa'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 3.8,
+  petalLength: 1.6,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 4.6,
+  sepalWidth: 3.2,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.3,
+  sepalWidth: 3.7,
+  petalLength: 1.5,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 3.3,
+  petalLength: 1.4,
+  petalWidth: 0.2,
+  species: 'setosa'
+}, {
+  sepalLength: 7.0,
+  sepalWidth: 3.2,
+  petalLength: 4.7,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 3.2,
+  petalLength: 4.5,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.9,
+  sepalWidth: 3.1,
+  petalLength: 4.9,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 2.3,
+  petalLength: 4.0,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.5,
+  sepalWidth: 2.8,
+  petalLength: 4.6,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 2.8,
+  petalLength: 4.5,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 3.3,
+  petalLength: 4.7,
+  petalWidth: 1.6,
+  species: 'versicolor'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 2.4,
+  petalLength: 3.3,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.6,
+  sepalWidth: 2.9,
+  petalLength: 4.6,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.2,
+  sepalWidth: 2.7,
+  petalLength: 3.9,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 2.0,
+  petalLength: 3.5,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.9,
+  sepalWidth: 3.0,
+  petalLength: 4.2,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 2.2,
+  petalLength: 4.0,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 2.9,
+  petalLength: 4.7,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 2.9,
+  petalLength: 3.6,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.1,
+  petalLength: 4.4,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 3.0,
+  petalLength: 4.5,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.7,
+  petalLength: 4.1,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.2,
+  sepalWidth: 2.2,
+  petalLength: 4.5,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 2.5,
+  petalLength: 3.9,
+  petalWidth: 1.1,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.9,
+  sepalWidth: 3.2,
+  petalLength: 4.8,
+  petalWidth: 1.8,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 2.8,
+  petalLength: 4.0,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.5,
+  petalLength: 4.9,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 2.8,
+  petalLength: 4.7,
+  petalWidth: 1.2,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 2.9,
+  petalLength: 4.3,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.6,
+  sepalWidth: 3.0,
+  petalLength: 4.4,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.8,
+  sepalWidth: 2.8,
+  petalLength: 4.8,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.0,
+  petalLength: 5.0,
+  petalWidth: 1.7,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 2.9,
+  petalLength: 4.5,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 2.6,
+  petalLength: 3.5,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 2.4,
+  petalLength: 3.8,
+  petalWidth: 1.1,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 2.4,
+  petalLength: 3.7,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.7,
+  petalLength: 3.9,
+  petalWidth: 1.2,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 2.7,
+  petalLength: 5.1,
+  petalWidth: 1.6,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.4,
+  sepalWidth: 3.0,
+  petalLength: 4.5,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 3.4,
+  petalLength: 4.5,
+  petalWidth: 1.6,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.1,
+  petalLength: 4.7,
+  petalWidth: 1.5,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.3,
+  petalLength: 4.4,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 3.0,
+  petalLength: 4.1,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 2.5,
+  petalLength: 4.0,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.5,
+  sepalWidth: 2.6,
+  petalLength: 4.4,
+  petalWidth: 1.2,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 3.0,
+  petalLength: 4.6,
+  petalWidth: 1.4,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.6,
+  petalLength: 4.0,
+  petalWidth: 1.2,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.0,
+  sepalWidth: 2.3,
+  petalLength: 3.3,
+  petalWidth: 1.0,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 2.7,
+  petalLength: 4.2,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 3.0,
+  petalLength: 4.2,
+  petalWidth: 1.2,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 2.9,
+  petalLength: 4.2,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.2,
+  sepalWidth: 2.9,
+  petalLength: 4.3,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.1,
+  sepalWidth: 2.5,
+  petalLength: 3.0,
+  petalWidth: 1.1,
+  species: 'versicolor'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 2.8,
+  petalLength: 4.1,
+  petalWidth: 1.3,
+  species: 'versicolor'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 3.3,
+  petalLength: 6.0,
+  petalWidth: 2.5,
+  species: 'virginica'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.7,
+  petalLength: 5.1,
+  petalWidth: 1.9,
+  species: 'virginica'
+}, {
+  sepalLength: 7.1,
+  sepalWidth: 3.0,
+  petalLength: 5.9,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.9,
+  petalLength: 5.6,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.5,
+  sepalWidth: 3.0,
+  petalLength: 5.8,
+  petalWidth: 2.2,
+  species: 'virginica'
+}, {
+  sepalLength: 7.6,
+  sepalWidth: 3.0,
+  petalLength: 6.6,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 4.9,
+  sepalWidth: 2.5,
+  petalLength: 4.5,
+  petalWidth: 1.7,
+  species: 'virginica'
+}, {
+  sepalLength: 7.3,
+  sepalWidth: 2.9,
+  petalLength: 6.3,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 2.5,
+  petalLength: 5.8,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 7.2,
+  sepalWidth: 3.6,
+  petalLength: 6.1,
+  petalWidth: 2.5,
+  species: 'virginica'
+}, {
+  sepalLength: 6.5,
+  sepalWidth: 3.2,
+  petalLength: 5.1,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 2.7,
+  petalLength: 5.3,
+  petalWidth: 1.9,
+  species: 'virginica'
+}, {
+  sepalLength: 6.8,
+  sepalWidth: 3.0,
+  petalLength: 5.5,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 5.7,
+  sepalWidth: 2.5,
+  petalLength: 5.0,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.8,
+  petalLength: 5.1,
+  petalWidth: 2.4,
+  species: 'virginica'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 3.2,
+  petalLength: 5.3,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 6.5,
+  sepalWidth: 3.0,
+  petalLength: 5.5,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 7.7,
+  sepalWidth: 3.8,
+  petalLength: 6.7,
+  petalWidth: 2.2,
+  species: 'virginica'
+}, {
+  sepalLength: 7.7,
+  sepalWidth: 2.6,
+  petalLength: 6.9,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 2.2,
+  petalLength: 5.0,
+  petalWidth: 1.5,
+  species: 'virginica'
+}, {
+  sepalLength: 6.9,
+  sepalWidth: 3.2,
+  petalLength: 5.7,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 5.6,
+  sepalWidth: 2.8,
+  petalLength: 4.9,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 7.7,
+  sepalWidth: 2.8,
+  petalLength: 6.7,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.7,
+  petalLength: 4.9,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.3,
+  petalLength: 5.7,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 7.2,
+  sepalWidth: 3.2,
+  petalLength: 6.0,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.2,
+  sepalWidth: 2.8,
+  petalLength: 4.8,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 3.0,
+  petalLength: 4.9,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 2.8,
+  petalLength: 5.6,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 7.2,
+  sepalWidth: 3.0,
+  petalLength: 5.8,
+  petalWidth: 1.6,
+  species: 'virginica'
+}, {
+  sepalLength: 7.4,
+  sepalWidth: 2.8,
+  petalLength: 6.1,
+  petalWidth: 1.9,
+  species: 'virginica'
+}, {
+  sepalLength: 7.9,
+  sepalWidth: 3.8,
+  petalLength: 6.4,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 2.8,
+  petalLength: 5.6,
+  petalWidth: 2.2,
+  species: 'virginica'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.8,
+  petalLength: 5.1,
+  petalWidth: 1.5,
+  species: 'virginica'
+}, {
+  sepalLength: 6.1,
+  sepalWidth: 2.6,
+  petalLength: 5.6,
+  petalWidth: 1.4,
+  species: 'virginica'
+}, {
+  sepalLength: 7.7,
+  sepalWidth: 3.0,
+  petalLength: 6.1,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 3.4,
+  petalLength: 5.6,
+  petalWidth: 2.4,
+  species: 'virginica'
+}, {
+  sepalLength: 6.4,
+  sepalWidth: 3.1,
+  petalLength: 5.5,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.0,
+  sepalWidth: 3.0,
+  petalLength: 4.8,
+  petalWidth: 1.8,
+  species: 'virginica'
+}, {
+  sepalLength: 6.9,
+  sepalWidth: 3.1,
+  petalLength: 5.4,
+  petalWidth: 2.1,
+  species: 'virginica'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.1,
+  petalLength: 5.6,
+  petalWidth: 2.4,
+  species: 'virginica'
+}, {
+  sepalLength: 6.9,
+  sepalWidth: 3.1,
+  petalLength: 5.1,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 5.8,
+  sepalWidth: 2.7,
+  petalLength: 5.1,
+  petalWidth: 1.9,
+  species: 'virginica'
+}, {
+  sepalLength: 6.8,
+  sepalWidth: 3.2,
+  petalLength: 5.9,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.3,
+  petalLength: 5.7,
+  petalWidth: 2.5,
+  species: 'virginica'
+}, {
+  sepalLength: 6.7,
+  sepalWidth: 3.0,
+  petalLength: 5.2,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 6.3,
+  sepalWidth: 2.5,
+  petalLength: 5.0,
+  petalWidth: 1.9,
+  species: 'virginica'
+}, {
+  sepalLength: 6.5,
+  sepalWidth: 3.0,
+  petalLength: 5.2,
+  petalWidth: 2.0,
+  species: 'virginica'
+}, {
+  sepalLength: 6.2,
+  sepalWidth: 3.4,
+  petalLength: 5.4,
+  petalWidth: 2.3,
+  species: 'virginica'
+}, {
+  sepalLength: 5.9,
+  sepalWidth: 3.0,
+  petalLength: 5.1,
+  petalWidth: 1.8,
+  species: 'virginica'
+}];
+
+data$1.columns = Object.keys(data$1[0]);
 
 var app = select('#app');
 var form = app.select('.data-input form');
@@ -5555,6 +6855,8 @@ form.on('drag dragstart dragend.default dragover.default dragenter.default dragl
   form.classed('is-dragover', false);
 }).on('drop', dropped);
 
+app.select('.demo-dataset').on('click', runDemo);
+
 function dropped() {
   var file = event.dataTransfer.files[0];
   var reader = new FileReader();
@@ -5570,6 +6872,11 @@ function dropped() {
   }
 
   form.classed('is-dragover', false);
+}
+
+function runDemo() {
+  clear();
+  selectColumn(data$1);
 }
 
 function selectColumn(input) {
@@ -5594,6 +6901,8 @@ function selectColumn(input) {
     });
   }).enter().append('td').html(function (d) {
     return Object.values(d);
+  }).attr('class', function (d) {
+    return Number.isNaN(+Object.values(d)) ? 'string' : 'number';
   }).on('click', paintColumn);
 }
 
@@ -5641,6 +6950,8 @@ function paintColumn(d) {
 }
 
 function parseData(input) {
+  if (Array.isArray(input)) return input;
+
   var results = Papa.parse(input);
   var dsv$$1 = dsv(results.meta.delimiter, 'utf-8');
 
