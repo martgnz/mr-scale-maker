@@ -1,4 +1,5 @@
 import { scaleQuantile } from 'd3-scale';
+import { median, mean } from 'd3-array';
 
 export default function(data, column) {
   const breaks = {};
@@ -8,7 +9,20 @@ export default function(data, column) {
     .domain(data.map(d => d[column]))
     .quantiles();
 
+  const medians = median(data.map(d => d[column]));
+  const means = mean(data.map(d => d[column]));
+
   breaks.quantiles = quantiles;
+  breaks.statistics = [
+    {
+      label: 'Median',
+      value: medians
+    },
+    {
+      label: 'Mean',
+      value: means
+    }
+  ];
 
   return breaks;
 }

@@ -11,6 +11,20 @@
       }
     }
 
+    .breaks {
+      text {
+        font-family: var(--font);
+        font-size: 11px;
+      }
+    }
+
+    .statistics {
+      text {
+        font-weight: 700;
+        font-size: 11px;
+      }
+    }
+
     .x.axis {
       font-family: var(--font);
     }
@@ -18,6 +32,7 @@
     .btn-group {
       position: absolute;
       right: 0;
+      top: -40px;
     }
   }
 }

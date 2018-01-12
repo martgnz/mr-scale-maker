@@ -1,6 +1,10 @@
 .data-input {
   margin: 1rem 0;
 
+  .demo-dataset {
+    cursor: pointer;
+  }
+
   .drag__dragndrop,
   .drag__uploading,
   .drag__success,
