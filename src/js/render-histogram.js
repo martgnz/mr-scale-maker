@@ -133,6 +133,15 @@ export default function(div, data, column) {
     .attr('text-anchor', 'middle')
     .text('▼');
 
+  statistics
+    .append('line')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', 30)
+    .attr('y2', height + 30)
+    .attr('stroke', 'purple')
+    .attr('stroke-dasharray', '5 3');
+
   svg
     .append('g')
     .attr('class', 'axis x')
