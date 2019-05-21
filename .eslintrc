@@ -1,8 +1,7 @@
 {
-  "extends": ["airbnb-base", "prettier"],
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "globals": {
-    "FileReader": true,
-    "Papa": true
+    "FileReader": true
   },
   "rules": {
     "no-use-before-define": "off",
