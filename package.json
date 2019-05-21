@@ -9,8 +9,8 @@
     "start": "postcss src/css/index.css -o src/bundle.css -w -c & rollup -c -w & http-server src/",
     "build:js": "rollup -c",
     "build:css": "postcss src/css/index.css -o src/bundle.css -c",
-    "build": "mkdir -p public && yarn run build:js && yarn run build:css && cp {src/index.html,src/bundle*} public/",
-    "deploy": "yarn run build && gh-pages -d ./public"
+    "build": "mkdir -p public && npm run build:js && npm run build:css && cp {src/index.html,src/bundle*} public/",
+    "deploy": "npm run build && gh-pages -d ./public"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
