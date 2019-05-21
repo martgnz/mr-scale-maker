@@ -21,7 +21,15 @@
     transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
 
     &.is-dragover {
-      background-color: #c8dadf;
+      background-color: #ebf7fb;
+    }
+    &.is-success {
+      .drag__input {
+        display: none;
+      }
+      .drag__success {
+        display: block;
+      }
     }
     .drag__dragndrop {
       display: inline;
@@ -42,13 +50,19 @@
       z-index: -1;
     }
     .drag__file + label {
-      max-width: 80%;
+      max-width: 90%;
+      padding: 0.5rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       cursor: pointer;
       display: inline-block;
       overflow: hidden;
       margin-bottom: 0;
+      line-height: 1.2;
+
+      &:hover {
+        background-color: #ebf7fb;
+      }
     }
     .drag__button {
       font-weight: 700;

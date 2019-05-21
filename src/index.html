@@ -9,7 +9,7 @@
       <h1>Mr. Scalemaker</h1>
 
       <section id="upload">
-        <h2>1. Upload your data</h2>
+        <h2>1. Drag your data</h2>
 
         <div class="data-input">
           <form
@@ -40,14 +40,28 @@
                   ></path>
                 </svg>
                 <strong>Choose a csv</strong
-                ><span class="drag__dragndrop"> and drag it here</span>.</label
+                ><span class="drag__dragndrop"> or drag it here</span>.</label
               >
               <div class="demo-dataset">(or load a demo!)</div>
               <button class="drag__button" type="submit">Upload</button>
             </div>
 
             <div class="drag__uploading">Uploading&hellip;</div>
-            <div class="drag__success">Done!</div>
+            <div class="drag__success">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="50"
+                height="50"
+                viewBox="0 0 24 24"
+              >
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"
+                />
+              </svg>
+
+              <div class="drag__filename"></div>
+            </div>
             <div class="drag__error">Error! <span></span>.</div>
           </form>
         </div>

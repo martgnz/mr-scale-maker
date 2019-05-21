@@ -50,6 +50,12 @@ function dropped() {
 
     reader.onload = () => {
       clear();
+
+      form
+        .classed('is-success', true)
+        .select('.drag__filename')
+        .html(`${file.name} (${bytesToSize(file.size)})`);
+
       renderTable(reader.result);
     };
   }
@@ -58,6 +64,7 @@ function dropped() {
 }
 
 function runDemo() {
+  event.preventDefault();
   clear();
   renderTable(sample);
 }
@@ -169,4 +176,13 @@ function clear(el) {
     });
   }
   return el.html('');
+}
+
+// https://gist.github.com/lanqy/5193417
+function bytesToSize(bytes) {
+  const sizes = ['bytes', 'kb', 'mb', 'gb', 'tb'];
+  if (bytes === 0) return 'n/a';
+  const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+  if (i === 0) return `${bytes} ${sizes[i]})`;
+  return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
 }
