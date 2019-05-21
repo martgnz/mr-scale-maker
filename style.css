@@ -8,8 +8,7 @@
 *,
 *::before,
 *::after {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 html {
   font-family: sans-serif;
@@ -40,7 +39,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol';
-  font-size: 16px;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -52,8 +50,7 @@ body {
   outline: 0 !important;
 }
 hr {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
+  box-sizing: content-box;
   height: 0;
   overflow: visible;
 }
@@ -64,12 +61,10 @@ h4,
 h5,
 h6 {
   margin-top: 0;
-  margin-bottom: 8px;
   margin-bottom: 0.5rem;
 }
 p {
   margin-top: 0;
-  margin-bottom: 16px;
   margin-bottom: 1rem;
 }
 abbr[title],
@@ -81,7 +76,6 @@ abbr[data-original-title] {
   border-bottom: 0;
 }
 address {
-  margin-bottom: 16px;
   margin-bottom: 1rem;
   font-style: normal;
   line-height: inherit;
@@ -90,7 +84,6 @@ ol,
 ul,
 dl {
   margin-top: 0;
-  margin-bottom: 16px;
   margin-bottom: 1rem;
 }
 ol ol,
@@ -103,12 +96,10 @@ dt {
   font-weight: 700;
 }
 dd {
-  margin-bottom: 8px;
   margin-bottom: 0.5rem;
   margin-left: 0;
 }
 blockquote {
-  margin: 0 0 16px;
   margin: 0 0 1rem;
 }
 dfn {
@@ -165,13 +156,11 @@ samp {
 }
 pre {
   margin-top: 0;
-  margin-bottom: 16px;
   margin-bottom: 1rem;
   overflow: auto;
   -ms-overflow-style: scrollbar;
 }
 figure {
-  margin: 0 0 16px;
   margin: 0 0 1rem;
 }
 img {
@@ -190,16 +179,13 @@ label,
 select,
 summary,
 textarea {
-  -ms-touch-action: manipulation;
   touch-action: manipulation;
 }
 table {
   border-collapse: collapse;
 }
 caption {
-  padding-top: 12px;
   padding-top: 0.75rem;
-  padding-bottom: 12px;
   padding-bottom: 0.75rem;
   color: #868e96;
   text-align: left;
@@ -210,7 +196,6 @@ th {
 }
 label {
   display: inline-block;
-  margin-bottom: 8px;
   margin-bottom: 0.5rem;
 }
 button {
@@ -253,8 +238,7 @@ button::-moz-focus-inner,
 }
 input[type='radio'],
 input[type='checkbox'] {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   padding: 0;
 }
 input[type='date'],
@@ -278,9 +262,7 @@ legend {
   width: 100%;
   max-width: 100%;
   padding: 0;
-  margin-bottom: 8px;
   margin-bottom: 0.5rem;
-  font-size: 24px;
   font-size: 1.5rem;
   line-height: inherit;
   color: inherit;
@@ -318,7 +300,6 @@ template {
   display: none !important;
 }
 .data-input {
-  margin: 16px 0;
   margin: 1rem 0;
 }
 .data-input .demo-dataset {
@@ -333,27 +314,31 @@ template {
 .data-input .drag {
     text-align: center;
     outline: 2px dashed #92b0b3;
-    font-size: 20px;
     font-size: 1.25rem;
     background-color: white;
     position: relative;
     padding: 20px;
-    -webkit-transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
-    transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear
+    transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
   }
 .data-input .drag.is-dragover {
-  background-color: #c8dadf;
-}
+      background-color: #ebf7fb;
+    }
+.data-input .drag.is-success .drag__input {
+        display: none;
+      }
+.data-input .drag.is-success .drag__success {
+        display: block;
+      }
 .data-input .drag .drag__dragndrop {
       display: inline;
-}
+    }
 .data-input .drag .drag__icon {
       width: 100%;
       height: 30px;
       fill: #333;
       display: block;
       margin-bottom: 10px;
-}
+    }
 .data-input .drag .drag__file {
       width: 0.1px;
       height: 0.1px;
@@ -361,16 +346,21 @@ template {
       overflow: hidden;
       position: absolute;
       z-index: -1;
-}
+    }
 .data-input .drag .drag__file + label {
-      max-width: 80%;
+      max-width: 90%;
+      padding: 0.5rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       cursor: pointer;
       display: inline-block;
       overflow: hidden;
       margin-bottom: 0;
-}
+      line-height: 1.2;
+    }
+.data-input .drag .drag__file + label:hover {
+        background-color: #ebf7fb;
+      }
 .data-input .drag .drag__button {
       font-weight: 700;
       color: #e5edf1;
@@ -378,12 +368,11 @@ template {
       display: none;
       padding: 8px 16px;
       margin: 40px auto 0;
-}
+    }
 .error {
   position: relative;
   overflow: hidden;
   text-align: center;
-  padding: 80px;
   padding: 5rem;
   background: #f8f8f8;
 }
@@ -393,9 +382,7 @@ template {
 .error svg {
     fill: #e6e6e6;
     position: absolute;
-    right: -16px;
     right: -1rem;
-    bottom: -16px;
     bottom: -1rem;
     width: 140px;
     -webkit-transform: rotate(-87deg);
@@ -407,46 +394,42 @@ template {
 #choose .output table {
       width: 100%;
       position: relative;
-      overflow: hidden
+      overflow: hidden;
     }
 #choose .output table:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  height: 48px;
-  height: 3rem;
-  width: 100%;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(white));
-  background-image: linear-gradient(to bottom, transparent, white);
-  pointer-events: none;
-}
+        content: '';
+        position: absolute;
+        bottom: 0;
+        height: 3rem;
+        width: 100%;
+        background-image: linear-gradient(to bottom, transparent, white);
+        pointer-events: none;
+      }
 #choose .output table td,
       #choose .output table th {
         cursor: pointer;
         position: relative;
-}
+      }
 #choose .output table th {
         border-bottom: 1px solid #111;
-}
+      }
 #choose .output table th:not(:first-child):not(:last-child) {
-  padding: 2px 10px;
-}
+          padding: 2px 10px;
+        }
 #choose .output table td:not(:first-child):not(:last-child) {
         padding: 2px 10px;
-}
+      }
 #choose .output table .number {
         font-family: 'Menlo', monospace;
         text-align: right;
-        font-size: 14.4px;
         font-size: 0.9rem;
         color: #3182bd;
-}
+      }
 #choose .output table .string {
         font-family: 'Menlo', monospace;
         color: #756bb1;
-}
-/*Hover over the whole column
- */
+      }
+/* Hover over the whole column */
 #choose .output table td:hover::after,
       #choose .output table th:not(:empty):hover::after,
       #choose .output table td.checked::after,
@@ -458,13 +441,13 @@ template {
         top: -5000px;
         width: 100%;
         z-index: -1;
-}
+      }
 #choose .output table td:hover::after,
       #choose .output table th:hover::after,
       #choose .output table th.checked::after,
       #choose .output table td.checked::after {
         background-color: #ffffdd;
-}
+      }
 #visualize .output {
     position: relative;
   }
@@ -510,46 +493,37 @@ template {
   border-right-color: transparent;
   border-bottom-color: transparent;
   border-left-color: transparent;
-  padding: 4.8px 12px;
   padding: 0.3rem 0.75rem;
-  font-size: 16px;
   font-size: 1rem;
   border-radius: 0.25rem;
-  border-top-right-radius: 4px;
   border-top-right-radius: 0.25rem;
-  border-bottom-right-radius: 4px;
   border-bottom-right-radius: 0.25rem;
-  -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
   -webkit-appearance: button;
 
   color: #292b2c;
   background-color: #fff;
-  border-color: #ccc
+  border-color: #ccc;
 }
 .btn:hover,
   .btn.active {
-  color: #292b2c;
-  background-color: #e6e6e6;
-  border-color: #adadad;
-  text-decoration: none;
-}
+    color: #292b2c;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+    text-decoration: none;
+  }
 .btn-group {
   position: relative;
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
   display: inline-flex;
   vertical-align: middle;
 }
 .btn-group > .btn {
   position: relative;
-  -webkit-box-flex: 0;
-      -ms-flex: 0 1 auto;
-          flex: 0 1 auto
+  flex: 0 1 auto;
 }
 .btn-group > .btn:hover {
-  z-index: 2;
-}
+    z-index: 2;
+  }
 .btn-group > .btn:first-child {
   margin-left: 0;
 }
@@ -568,27 +542,31 @@ template {
   border-top-left-radius: 0;
 }
 body {
-  padding: 8px;
-  padding: 0.5rem;
-  max-width: 960px;
-  margin: 16px auto;
+  padding: 2rem;
+  max-width: 800px;
   margin: 1rem auto;
   line-height: 1.4;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
 }
-@media (min-width: 960px) {
-  body {
-    padding: 0;
-  }
+@media (min-width: 800px) {
+body {
+    padding: 0
 }
+  }
 h1 {
   text-align: center;
+}
+h2 {
+  font-weight: 600;
 }
 .hidden {
   display: none;
 }
 section {
-  margin-bottom: 32px;
   margin-bottom: 2rem;
 }
+.demo-dataset:hover {
+  text-decoration: underline;
+}
+
