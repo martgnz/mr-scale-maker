@@ -1,5 +1,7 @@
+import { mouse } from 'd3-selection';
 import { scaleLinear, scaleThreshold } from 'd3-scale';
-import { extent, histogram, max } from 'd3-array';
+import { schemeRdPu } from 'd3-scale-chromatic';
+import { bisector, extent, histogram, max } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 
@@ -10,20 +12,20 @@ export default function(div, data, column) {
     d[column] = +d[column];
   });
 
-  const scales = ['quantiles', 'equal breaks', 'jenks'];
-  const breaks = computeBreaks(data, column);
-
-  const formatter = format('.4');
-
-  console.log(breaks);
+  const formatter = format('.1f');
 
   // TODO: config
+  const scales = ['quantiles', 'equal breaks', 'jenks'];
+
   const SELECTED_SCALE = 'quantiles';
   const SELECTED_BINS = 20;
+  const SELECTED_CLASSES = 4;
+
+  const breaks = computeBreaks(SELECTED_CLASSES, data, column);
 
   // TODO: config
   const color = scaleThreshold()
-    .range(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'])
+    .range(schemeRdPu[SELECTED_CLASSES])
     .domain(breaks[SELECTED_SCALE]);
 
   const margin = { top: 60, right: 10, bottom: 20, left: 30 };
@@ -42,6 +44,17 @@ export default function(div, data, column) {
     .classed('active', d => d === SELECTED_SCALE)
     .text(d => d);
 
+  const inputClasses = div.append('div').attr('class', 'input-classes');
+  inputClasses.append('div').text('Classes');
+
+  inputClasses
+    .append('input')
+    .attr('type', 'number')
+    .attr('min', 3)
+    .attr('value', SELECTED_CLASSES)
+    .on('input', updateBreaks);
+
+  // Start with the histogram
   const x = scaleLinear()
     .range([0, width])
     .domain(extent(data, d => d[column]));
@@ -53,6 +66,9 @@ export default function(div, data, column) {
   const y = scaleLinear()
     .domain([0, max(bins, d => d.length)])
     .range([height, 0]);
+
+  const bisectBins = bisector(d => d).right;
+  const binsForBisector = bins.map(d => d.x0);
 
   const svg = div
     .append('svg')
@@ -86,23 +102,19 @@ export default function(div, data, column) {
     .selectAll('g')
     .data(breaks[SELECTED_SCALE])
     .enter()
-    .append('g');
+    .append('g')
+    .attr('class', 'break')
+    .attr('transform', d => `translate(${Math.floor(x(d))}, 0)`);
 
   lines
     .append('line')
-    .attr('x1', d => x(d))
-    .attr('x2', d => x(d))
-    .attr('y1', 0)
     .attr('y2', height)
     .attr('stroke', 'black');
 
   lines
     .append('text')
-    .attr('x', d => x(d))
     .attr('dy', 9)
     .attr('dx', -4)
-    // .attr('dy', -5)
-    // .attr('transform', d => `rotate(-90, ${x(d)}, 0)`)
     .attr('text-anchor', 'end')
     .text(d => formatter(d));
 
@@ -152,4 +164,74 @@ export default function(div, data, column) {
     .append('g')
     .attr('class', 'axis y')
     .call(axisLeft(y).ticks(4));
+
+  svg
+    .append('rect')
+    .attr('class', 'hover-rect')
+    .attr('fill', 'transparent')
+    .attr('pointer-events', 'all')
+    .attr('width', width)
+    .attr('height', height)
+    .on('mousemove', mousemoved);
+
+  function mousemoved() {
+    const [xMouse] = mouse(svg.node());
+    const idx = bisectBins(binsForBisector, x.invert(xMouse));
+
+    const hover = {
+      value: bins[idx].length,
+      x0: bins[idx].x0,
+    };
+
+    console.log(hover.x0, hover.value);
+  }
+
+  function updateBreaks() {
+    const classes = +this.value;
+
+    const newBreaks = computeBreaks(classes, data, column);
+    const newColor = scaleThreshold()
+      .range(schemeRdPu[classes])
+      .domain(newBreaks[SELECTED_SCALE]);
+
+    svg
+      .selectAll('.bar rect')
+      .attr('fill', d => (d ? newColor(max(d)) : '#ccc'))
+      .attr('stroke', d => (d ? newColor(max(d)) : '#ccc'));
+
+    console.log(newBreaks.quantiles);
+
+    svg
+      .selectAll('.break')
+      .data(newBreaks[SELECTED_SCALE])
+      .join(
+        enter => {
+          enter = enter
+            .select('.breaks')
+            .append('g')
+            .attr('class', 'break')
+            .attr('transform', d => `translate(${Math.floor(x(d))}, 0)`);
+
+          enter
+            .append('line')
+            .attr('y2', height)
+            .attr('stroke', 'black');
+
+          enter
+            .append('text')
+            .attr('dy', 9)
+            .attr('dx', -4)
+            .attr('text-anchor', 'end')
+            .text(d => formatter(d));
+        },
+        update => {
+          update = update.attr(
+            'transform',
+            d => `translate(${Math.floor(x(d))}, 0)`,
+          );
+
+          update.select('text').text(d => formatter(d));
+        },
+      );
+  }
 }
