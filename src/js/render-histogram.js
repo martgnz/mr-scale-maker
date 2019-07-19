@@ -15,11 +15,10 @@ export default function(div, data, column) {
   const formatter = format('.1f');
 
   // TODO: config
-  const scales = ['quantiles', 'equal breaks', 'jenks'];
+  const scales = ['quantiles', 'equal breaks', 'ckmeans'];
 
-  const SELECTED_SCALE = 'quantiles';
+  let SELECTED_SCALE = 'quantiles';
   const SELECTED_BINS = 20;
-  const SELECTED_CLASSES = 4;
 
   const breaks = computeBreaks(SELECTED_CLASSES, data, column);
 
@@ -42,7 +41,8 @@ export default function(div, data, column) {
     .append('button')
     .attr('class', 'btn')
     .classed('active', d => d === SELECTED_SCALE)
-    .text(d => d);
+    .text(d => d)
+    .on('click', updateBreaks);
 
   const inputClasses = div.append('div').attr('class', 'input-classes');
   inputClasses.append('div').text('Classes');
@@ -50,7 +50,9 @@ export default function(div, data, column) {
   inputClasses
     .append('input')
     .attr('type', 'number')
+    .attr('id', 'nClasses')
     .attr('min', 3)
+    .attr('max', 9)
     .attr('value', SELECTED_CLASSES)
     .on('input', updateBreaks);
 
@@ -186,20 +188,32 @@ export default function(div, data, column) {
     console.log(hover.x0, hover.value);
   }
 
-  function updateBreaks() {
-    const classes = +this.value;
+  function updateClasses(){
+      SELECTED_CLASSES = +div.select('input').node().value
+  }
+  function updateScale(el){
+      SELECTED_SCALE = el.innerText;
+  }
+  function handleActiveButton(el){
+      div.selectAll(".btn").classed('active', false);
+      el.classList.add('active');
+  }
 
-    const newBreaks = computeBreaks(classes, data, column);
+  function updateBreaks() {
+    updateClasses();
+    if (this.classList.contains('btn')) {
+        handleActiveButton(this);
+        updateScale(this);
+    }
+    const newBreaks = computeBreaks(SELECTED_CLASSES, data, column);
     const newColor = scaleThreshold()
-      .range(schemeRdPu[classes])
+      .range(schemeRdPu[SELECTED_CLASSES])
       .domain(newBreaks[SELECTED_SCALE]);
 
     svg
       .selectAll('.bar rect')
       .attr('fill', d => (d ? newColor(max(d)) : '#ccc'))
       .attr('stroke', d => (d ? newColor(max(d)) : '#ccc'));
-
-    console.log(newBreaks.quantiles);
 
     svg
       .selectAll('.break')
