@@ -19,11 +19,11 @@ export default function(div, data, column) {
 
   let SELECTED_SCALE = 'quantiles';
 
-  const breaks = computeBreaks(SELECTED_CLASSES, data, column);
+  const breaks = computeBreaks(window.SELECTED_CLASSES, data, column);
 
   // TODO: config
   const color = scaleThreshold()
-    .range(schemeRdPu[SELECTED_CLASSES])
+    .range(schemeRdPu[window.SELECTED_CLASSES])
     .domain(breaks[SELECTED_SCALE]);
 
   const margin = { top: 60, right: 10, bottom: 20, left: 35 };
@@ -54,7 +54,7 @@ export default function(div, data, column) {
     .attr('id', 'nClasses')
     .attr('min', 3)
     .attr('max', 9)
-    .attr('value', SELECTED_CLASSES)
+    .attr('value', window.SELECTED_CLASSES)
     .on('input', updateBreaks);
 
   const inputBins = inputConfig.append('div').attr('class', 'input-bins');
@@ -64,18 +64,18 @@ export default function(div, data, column) {
     .append('input')
     .attr('type', 'number')
     .attr('min', 3)
-    .attr('value', SELECTED_BINS)
+    .attr('value', window.SELECTED_BINS)
     .on('input', updateHistogram);
 
   // Start with the histogram
   let x = scaleLinear()
     .range([0, width])
     .domain(extent(data, d => d[column]))
-    .nice(SELECTED_BINS);
+    .nice(window.SELECTED_BINS);
 
   let bins = histogram()
     .domain(x.domain())
-    .thresholds(x.ticks(SELECTED_BINS))(data.map(d => d[column]));
+    .thresholds(x.ticks(window.SELECTED_BINS))(data.map(d => d[column]));
 
   let y = scaleLinear()
     .domain([0, max(bins, d => d.length)])
@@ -104,7 +104,7 @@ export default function(div, data, column) {
   // FIXME: the color should be go *over* the bars
   bar
     .append('rect')
-    .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+    .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
     .attr('height', d => height - y(d.length))
     .attr('fill', d => (d ? color(max(d)) : '#ccc'))
     .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
@@ -200,26 +200,30 @@ export default function(div, data, column) {
     console.log(hover.x0, hover.value);
   }
 
-  function updateClasses(){
-      SELECTED_CLASSES = +div.select('input').node().value
+  function updateClasses() {
+    window.SELECTED_CLASSES = +div.select('input').node().value;
   }
-  function updateScale(el){
-      SELECTED_SCALE = el.innerText;
+
+  function updateScale(el) {
+    SELECTED_SCALE = el.innerText;
   }
-  function handleActiveButton(el){
-      div.selectAll(".btn").classed('active', false);
-      el.classList.add('active');
+
+  function handleActiveButton(el) {
+    div.selectAll('.btn').classed('active', false);
+    el.classList.add('active');
   }
 
   function updateBreaks() {
     updateClasses();
+
     if (this.classList.contains('btn')) {
-        handleActiveButton(this);
-        updateScale(this);
+      handleActiveButton(this);
+      updateScale(this);
     }
-    const newBreaks = computeBreaks(SELECTED_CLASSES, data, column);
+
+    const newBreaks = computeBreaks(window.SELECTED_CLASSES, data, column);
     const newColor = scaleThreshold()
-      .range(schemeRdPu[SELECTED_CLASSES])
+      .range(schemeRdPu[window.SELECTED_CLASSES])
       .domain(newBreaks[SELECTED_SCALE]);
 
     svg
@@ -261,17 +265,17 @@ export default function(div, data, column) {
       );
   }
 
-  function updateHistogram(){
-    SELECTED_BINS = +this.value;
+  function updateHistogram() {
+    window.SELECTED_BINS = +this.value;
 
     x = scaleLinear()
       .range([0, width])
       .domain(extent(data, d => d[column]))
-      .nice(SELECTED_BINS);
+      .nice(window.SELECTED_BINS);
 
     bins = histogram()
       .domain(x.domain())
-      .thresholds(x.ticks(SELECTED_BINS))(data.map(d => d[column]));
+      .thresholds(x.ticks(window.SELECTED_BINS))(data.map(d => d[column]));
 
     y = scaleLinear()
       .domain([0, max(bins, d => d.length)])
@@ -286,11 +290,11 @@ export default function(div, data, column) {
             .select('.bars')
             .append('g')
             .attr('class', 'bar')
-            .attr('transform', d => `translate(${x(d.x0)}, ${y(d.length)})`)
+            .attr('transform', d => `translate(${x(d.x0)}, ${y(d.length)})`);
 
           enter
             .append('rect')
-            .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+            .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
             .attr('height', d => height - y(d.length))
             .attr('fill', d => (d ? color(max(d)) : '#ccc'))
             .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
@@ -301,15 +305,14 @@ export default function(div, data, column) {
             d => `translate(${x(d.x0)}, ${y(d.length)})`,
           );
 
-          update.select('rect')
-            .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+          update
+            .select('rect')
+            .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 1))
             .attr('height', d => height - y(d.length))
             .attr('fill', d => (d ? color(max(d)) : '#ccc'))
             .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
         },
-        exit => {
-          exit = exit.remove()
-        },
+        exit => exit.remove(),
       );
-    }
+  }
 }
