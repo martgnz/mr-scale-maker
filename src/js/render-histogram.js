@@ -18,7 +18,6 @@ export default function(div, data, column) {
   const scales = ['quantiles', 'equal breaks', 'ckmeans'];
 
   let SELECTED_SCALE = 'quantiles';
-  const SELECTED_BINS = 20;
 
   const breaks = computeBreaks(SELECTED_CLASSES, data, column);
 
@@ -27,7 +26,7 @@ export default function(div, data, column) {
     .range(schemeRdPu[SELECTED_CLASSES])
     .domain(breaks[SELECTED_SCALE]);
 
-  const margin = { top: 60, right: 10, bottom: 20, left: 30 };
+  const margin = { top: 60, right: 10, bottom: 20, left: 35 };
   const width =
     div.node().getBoundingClientRect().width - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
@@ -44,7 +43,9 @@ export default function(div, data, column) {
     .text(d => d)
     .on('click', updateBreaks);
 
-  const inputClasses = div.append('div').attr('class', 'input-classes');
+  const inputConfig = div.append('div').attr('class', 'input-config');
+
+  const inputClasses = inputConfig.append('div').attr('class', 'input-classes');
   inputClasses.append('div').text('Classes');
 
   inputClasses
@@ -56,16 +57,27 @@ export default function(div, data, column) {
     .attr('value', SELECTED_CLASSES)
     .on('input', updateBreaks);
 
-  // Start with the histogram
-  const x = scaleLinear()
-    .range([0, width])
-    .domain(extent(data, d => d[column]));
+  const inputBins = inputConfig.append('div').attr('class', 'input-bins');
+  inputBins.append('div').text('Bins');
 
-  const bins = histogram()
+  inputBins
+    .append('input')
+    .attr('type', 'number')
+    .attr('min', 3)
+    .attr('value', SELECTED_BINS)
+    .on('input', updateHistogram);
+
+  // Start with the histogram
+  let x = scaleLinear()
+    .range([0, width])
+    .domain(extent(data, d => d[column]))
+    .nice(SELECTED_BINS);
+
+  let bins = histogram()
     .domain(x.domain())
     .thresholds(x.ticks(SELECTED_BINS))(data.map(d => d[column]));
 
-  const y = scaleLinear()
+  let y = scaleLinear()
     .domain([0, max(bins, d => d.length)])
     .range([height, 0]);
 
@@ -92,7 +104,7 @@ export default function(div, data, column) {
   // FIXME: the color should be go *over* the bars
   bar
     .append('rect')
-    .attr('width', x(bins[0].x1) - x(bins[0].x0))
+    .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
     .attr('height', d => height - y(d.length))
     .attr('fill', d => (d ? color(max(d)) : '#ccc'))
     .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
@@ -248,4 +260,56 @@ export default function(div, data, column) {
         },
       );
   }
+
+  function updateHistogram(){
+    SELECTED_BINS = +this.value;
+
+    x = scaleLinear()
+      .range([0, width])
+      .domain(extent(data, d => d[column]))
+      .nice(SELECTED_BINS);
+
+    bins = histogram()
+      .domain(x.domain())
+      .thresholds(x.ticks(SELECTED_BINS))(data.map(d => d[column]));
+
+    y = scaleLinear()
+      .domain([0, max(bins, d => d.length)])
+      .range([height, 0]);
+
+    div
+      .selectAll('.bar')
+      .data(bins)
+      .join(
+        enter => {
+          enter = enter
+            .select('.bars')
+            .append('g')
+            .attr('class', 'bar')
+            .attr('transform', d => `translate(${x(d.x0)}, ${y(d.length)})`)
+
+          enter
+            .append('rect')
+            .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+            .attr('height', d => height - y(d.length))
+            .attr('fill', d => (d ? color(max(d)) : '#ccc'))
+            .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
+        },
+        update => {
+          update = update.attr(
+            'transform',
+            d => `translate(${x(d.x0)}, ${y(d.length)})`,
+          );
+
+          update.select('rect')
+            .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+            .attr('height', d => height - y(d.length))
+            .attr('fill', d => (d ? color(max(d)) : '#ccc'))
+            .attr('stroke', d => (d ? color(max(d)) : '#ccc'));
+        },
+        exit => {
+          exit = exit.remove()
+        },
+      );
+    }
 }
