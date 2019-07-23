@@ -18,6 +18,7 @@ const visualize = app.select('#visualize');
 const chart = visualize.select('.output');
 
 window.SELECTED_CLASSES = 4;
+window.SELECTED_BINS = 20;
 
 const outputs = [];
 outputs.push(choose, visualize);

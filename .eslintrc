@@ -3,6 +3,9 @@
   "globals": {
     "FileReader": true
   },
+  "env": {
+    "browser": true
+  },
   "rules": {
     "no-use-before-define": "off",
     "no-param-reassign": "off",
