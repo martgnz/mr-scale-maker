@@ -35,25 +35,40 @@
     font-style: italic;
   }
 
-  .flex {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .settings {
-    margin-top: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-  input {
+  input[type="number"] {
     text-align: right;
     font-size: 1rem;
     width: 40px;
   }
-  .setting-flex {
+  .settings {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  @media (min-width: 900px) {
+    .settings {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  .statistics {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+  .settings-row {
+    display: flex;
+  }
+  .settings-row + .settings-row {
+    margin-top: 0.75rem;
+  }
+  .settings-group {
     display: flex;
     align-items: center;
   }
-  .setting-flex + .setting-flex {
+  .settings-group + .settings-group {
     margin-left: 1rem;
   }
   .setting-name {
@@ -64,6 +79,13 @@
   .scales {
     display: flex;
   }
+  .statistics .setting-name {
+    margin-right: 0.15rem;
+  }
+  .settings-value {
+    /* font-family: monospace; */
+  }
+
   .button-group button {
     cursor: pointer;
     font-size: 1rem;
@@ -104,6 +126,7 @@
 
   const ft = format(",");
   const ft1 = format(".1f");
+  const ftd = format(".4f");
 
   const margin = { top: 50, right: 10, bottom: 60, left: 10 };
   const width = 960 - margin.right - margin.left;
@@ -122,6 +145,7 @@
   let binTickOptions = [10, 20, 50, 100];
   let breakTicks = 6;
   let scale = "quantiles";
+  let showStatistics = [];
 
   let x;
   let y;
@@ -180,11 +204,10 @@
   <h2>3. Visualise the distribution</h2>
 
   {#if $columnData}
-    <div class="flex settings">
-      <div class="scales">
-        <div class="setting-flex">
+    <div class="settings">
+      <div class="settings-row scales">
+        <div class="settings-group">
           <div class="setting-name">Method</div>
-
           <div class="button-group">
             {#each scales as scaleSelect}
               <button
@@ -197,7 +220,7 @@
           </div>
         </div>
 
-        <div class="setting-flex">
+        <div class="settings-group">
           <label class="setting-name" for="breaks">Breaks</label>
           <input
             id="breaks"
@@ -210,8 +233,8 @@
         </div>
       </div>
 
-      <div class="chart-inputs">
-        <div class="setting-flex">
+      <div class="settings-row chart-inputs">
+        <div class="settings-group">
           <div class="setting-name">Histogram bins</div>
 
           <div class="button-group">
@@ -224,6 +247,29 @@
               </button>
             {/each}
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statistics">
+      {#each breaks.statistics as statistic}
+        <div class="settings-group">
+          <label for={statistic.label} class="setting-name">
+            Show {statistic.label}
+          </label>
+          <input
+            type="checkbox"
+            id={statistic.label}
+            value={statistic.label}
+            bind:group={showStatistics}
+          />
+        </div>
+      {/each}
+
+      <div class="settings-group">
+        <div class="setting-name">
+          Standard deviation =
+          <span class="settings-value">{ftd(breaks.standardDeviation)}</span>
         </div>
       </div>
     </div>
@@ -285,7 +331,10 @@
 
           <g class="statistics">
             {#each breaks.statistics as d}
-              <g transform={`translate(${x(d.value)},${height})`}>
+              <g
+                opacity={showStatistics.includes(d.label) ? 1 : 0}
+                transform={`translate(${x(d.value)},${height})`}
+              >
                 <path transform="translate(-3,0)" d="M0 0 L 6 0 L 3 7Z" />
 
                 <text class="halo" text-anchor="middle" dy={15}>{d.label}</text>

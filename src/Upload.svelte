@@ -99,6 +99,8 @@
     readFile(file);
   }
 
+  loadSample();
+
   function loadSample() {
     // load sample data set in the store
     data.set(iris);

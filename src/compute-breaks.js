@@ -1,6 +1,11 @@
 import { scaleQuantile } from "d3-scale";
 import { range, median, mean } from "d3-array";
-import { equalIntervalBreaks, ckmeans } from "simple-statistics";
+import {
+  equalIntervalBreaks,
+  ckmeans,
+  mode,
+  standardDeviation,
+} from "simple-statistics";
 
 export default function (classes, data) {
   const breaks = {};
@@ -15,6 +20,8 @@ export default function (classes, data) {
 
   const medians = median(data);
   const means = mean(data);
+  const modes = mode(data);
+  const stdDeviation = standardDeviation(data);
 
   // https://github.com/simple-statistics/simple-statistics/blob/4db0dd820ebb5bc9bd7635715a3ef8a4678e180e/CHANGELOG.md#jenks---ckmeans
   breaks.ckmeans = ckmeansBreaks.map(function (cluster) {
@@ -25,14 +32,20 @@ export default function (classes, data) {
   breaks.quantiles = quantiles;
   breaks.statistics = [
     {
-      label: "Median",
+      label: "median",
       value: medians,
     },
     {
-      label: "Mean",
+      label: "mean",
       value: means,
     },
+    {
+      label: "mode",
+      value: modes,
+    },
   ];
+
+  breaks.standardDeviation = stdDeviation;
 
   return breaks;
 }
