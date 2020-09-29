@@ -1,4 +1,7 @@
 <style>
+  .preview {
+    position: relative;
+  }
   .axis {
     font-family: sans-serif;
     font-size: 13px;
@@ -86,6 +89,17 @@
     /* font-family: monospace; */
   }
 
+  .tooltip {
+    background: white;
+    position: absolute;
+    pointer-events: none;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid #f5f5f5;
+    width: 140px;
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 5px;
+  }
   .button-group button {
     cursor: pointer;
     font-size: 1rem;
@@ -133,7 +147,7 @@
   const height = 400 - margin.top - margin.bottom;
 
   // we leave some margin for the y axis ticks
-  const xMargin = 30;
+  const xMargin = 0;
 
   // for the mousemover
   const bisect = bisector(d => d).right;
@@ -156,6 +170,7 @@
   let breaks;
   let colourScheme;
   let colour;
+  let hover;
 
   $: if ($columnData) {
     colourScheme = schemeRdPu;
@@ -185,21 +200,19 @@
   }
 
   function mousemoved(event) {
-    const [mx] = pointer(event);
+    const [mx, my] = pointer(event);
     const idx = bisect(bisectBins, x.invert(mx));
 
     // return when no results
     if (idx > bins.length - 1) return;
 
-    const hover = {
+    hover = {
+      mx,
+      my,
       value: bins[idx].length,
       x0: bins[idx].x0,
       x1: bins[idx].x1
     };
-
-    console.log(
-      `There are ${hover.value} records betwen ${hover.x0} and ${hover.x1}`
-    );
   }
 </script>
 
@@ -297,13 +310,11 @@
               {$columnData.column}
             </text>
           </g>
+
           <g class="y axis">
             {#each yTicks as tick, idx}
               <g class="tick" transform={`translate(0,${y(tick)})`}>
                 <line x2={width} />
-                <text text-anchor="start" dy={-5} dx={4}>
-                  {ft(tick)}{' '}{yTicks.length - 1 === idx ? 'records' : ''}
-                </text>
               </g>
             {/each}
           </g>
@@ -315,9 +326,19 @@
                   width={Math.max(0, x(d.x1) - x(d.x0) - 1)}
                   height={height - y(d.length)}
                   fill={colour(max(d))}
-                  stroke="white"
-                  stroke-width={0.25}
+                  stroke={hover ? hover.x0 === d.x0 && 'black' : 'white'}
+                  stroke-width={hover ? hover.x0 === d.x0 && 1.5 : 0.25}
                 />
+              </g>
+            {/each}
+          </g>
+
+          <g class="y axis">
+            {#each yTicks as tick, idx}
+              <g class="tick" transform={`translate(0,${y(tick)})`}>
+                <text text-anchor="start" dy={-5} dx={4}>
+                  {ft(tick)}{' '}{yTicks.length - 1 === idx ? 'records' : ''}
+                </text>
               </g>
             {/each}
           </g>
@@ -351,10 +372,26 @@
           </g>
 
           <line class="zero" y1={height} y2={height} x2={width} />
-          <rect fill="transparent" {width} {height} on:mousemove={mousemoved} />
+          <rect
+            fill="transparent"
+            {width}
+            {height}
+            on:mousemove={mousemoved}
+            on:mouseleave={() => (hover = null)}
+          />
         </g>
 
       </svg>
+
+      {#if hover}
+        <div
+          class="tooltip"
+          style="left: {hover.mx - 50}px; top: {hover.my - 10}px"
+        >
+          There {hover.value === 1 ? 'is' : 'are'} {hover.value} record{hover.value === 1 ? '' : 's'}
+          between {hover.x0} and {hover.x1}
+        </div>
+      {/if}
     {/if}
   </div>
 </section>
