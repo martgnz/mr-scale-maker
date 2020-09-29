@@ -35,8 +35,8 @@
 import &#123; scaleThreshold &#125; from 'd3-scale';
 
 scaleThreshold()
-  .domain(['{$selectedBreaks.breaks.map(ft).join(`', '`)}'])
-  .range(['{$selectedBreaks.colour.join(`', '`)}']);
+  .range(['{$selectedBreaks.colour.join(`', '`)}'])
+  .domain(['{$selectedBreaks.breaks.map(ft).join(`', '`)}']);
       </pre>
     </div>
   {/if}
