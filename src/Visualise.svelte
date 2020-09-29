@@ -171,10 +171,10 @@
 
     bins = bin()
       .domain(x.domain())
-      .thresholds(x.ticks(binTicks))($columnData.data);
+      .thresholds(binTicks)($columnData.data);
 
     // we don't want to map on every mouseevent
-    bisectBins = bins.map(d => d.x0);
+    bisectBins = bins.map(d => d.x1);
 
     y = scaleLinear()
       .domain([0, max(bins, d => d.length)])
@@ -193,10 +193,13 @@
 
     const hover = {
       value: bins[idx].length,
-      x0: bins[idx].x0
+      x0: bins[idx].x0,
+      x1: bins[idx].x1
     };
 
-    console.log(`There are ${hover.value} records in ${hover.x0}`);
+    console.log(
+      `There are ${hover.value} records betwen ${hover.x0} and ${hover.x1}`
+    );
   }
 </script>
 
@@ -348,16 +351,9 @@
           </g>
 
           <line class="zero" y1={height} y2={height} x2={width} />
+          <rect fill="transparent" {width} {height} on:mousemove={mousemoved} />
         </g>
 
-        <rect
-          fill="transparent"
-          y={margin.top}
-          x={xMargin}
-          {width}
-          {height}
-          on:mousemove={mousemoved}
-        />
       </svg>
     {/if}
   </div>
