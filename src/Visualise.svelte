@@ -1,4 +1,7 @@
 <style>
+  section {
+    margin-bottom: 2rem;
+  }
   .preview {
     position: relative;
   }
@@ -135,7 +138,7 @@
   import { extent, max, bin, bisector } from "d3-array";
   import { format } from "d3-format";
 
-  import { columnData } from "./stores.js";
+  import { columnData, selectedBreaks } from "./stores.js";
   import computeBreaks from "./compute-breaks.js";
 
   const ft = format(",");
@@ -146,11 +149,8 @@
   const width = 960 - margin.right - margin.left;
   const height = 400 - margin.top - margin.bottom;
 
-  // we leave some margin for the y axis ticks
-  const xMargin = 0;
-
   // for the mousemover
-  const bisect = bisector(d => d).right;
+  const bisect = bisector((d) => d).right;
 
   // FIXME: is there some way to make adding a new scale easier?
   const scales = ["quantiles", "equal breaks", "ckmeans"];
@@ -174,29 +174,35 @@
 
   $: if ($columnData) {
     colourScheme = schemeRdPu;
-    breaks = computeBreaks(breakTicks, $columnData.data);
 
+    breaks = computeBreaks(breakTicks, $columnData.data);
+    
+    const colours = colourScheme[breakTicks + 1];
     colour = scaleThreshold()
-      .range(colourScheme[breakTicks])
+      .range(colours)
       .domain(breaks[scale]);
 
     x = scaleLinear()
-      .range([xMargin, width])
-      .domain(extent($columnData.data, d => d));
+      .range([0, width])
+      .domain(extent($columnData.data, (d) => d));
 
-    bins = bin()
-      .domain(x.domain())
-      .thresholds(binTicks)($columnData.data);
+    bins = bin().domain(x.domain()).thresholds(binTicks)($columnData.data);
 
     // we don't want to map on every mouseevent
-    bisectBins = bins.map(d => d.x1);
+    bisectBins = bins.map((d) => d.x1);
 
     y = scaleLinear()
-      .domain([0, max(bins, d => d.length)])
+      .domain([0, max(bins, (d) => d.length)])
       .range([height, 0]);
 
     xTicks = x.ticks(6);
     yTicks = y.ticks(6);
+
+    // save our current settings to the store
+    selectedBreaks.set({
+      breaks: breaks[scale],
+      colour: colours,
+    });
   }
 
   function mousemoved(event) {
@@ -211,7 +217,7 @@
       my,
       value: bins[idx].length,
       x0: bins[idx].x0,
-      x1: bins[idx].x1
+      x1: bins[idx].x1,
     };
   }
 </script>
@@ -243,7 +249,7 @@
             type="number"
             min={3}
             max={colourScheme.length - 1}
-            on:change={event => (breakTicks = +event.target.value)}
+            on:change={(event) => (breakTicks = +event.target.value)}
             value={breakTicks}
           />
         </div>
@@ -271,7 +277,8 @@
       {#each breaks.statistics as statistic}
         <div class="settings-group">
           <label for={statistic.label} class="setting-name">
-            Show {statistic.label}
+            Show
+            {statistic.label}
           </label>
           <input
             type="checkbox"
@@ -380,7 +387,6 @@
             on:mouseleave={() => (hover = null)}
           />
         </g>
-
       </svg>
 
       {#if hover}
@@ -388,8 +394,14 @@
           class="tooltip"
           style="left: {hover.mx - 50}px; top: {hover.my - 10}px"
         >
-          There {hover.value === 1 ? 'is' : 'are'} {hover.value} record{hover.value === 1 ? '' : 's'}
-          between {hover.x0} and {hover.x1}
+          There
+          {hover.value === 1 ? 'is' : 'are'}
+          {hover.value}
+          record{hover.value === 1 ? '' : 's'}
+          between
+          {hover.x0}
+          and
+          {hover.x1}
         </div>
       {/if}
     {/if}
