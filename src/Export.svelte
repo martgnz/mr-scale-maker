@@ -2,18 +2,12 @@
   .preview {
     margin-top: 1rem;
   }
-  pre {
-    font-family: monospace;
-    background: #eee;
-    overflow: auto;
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
 </style>
 
 <script>
   import { format } from "d3-format";
   import { selectedBreaks } from "./stores.js";
+  import Code from "./code.svelte";
 
   // FIXME: we cap at two significant figures
   // should this be bigger?
@@ -25,19 +19,21 @@
 
   {#if $selectedBreaks}
     <div class="preview">
-      <pre>{$selectedBreaks.breaks.map(ft).join(', ')}</pre>
-      <pre>{$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')}</pre>
-      <pre>[{$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')}]</pre>
-      <pre>{$selectedBreaks.breaks.map(ft).join('\n')}</pre>
+      <Code code={$selectedBreaks.breaks.map(ft).join(', ')} />
+      <Code code={$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')} />
+      <Code
+        code={`[${$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')}]`}
+      />
+      <Code code={$selectedBreaks.breaks.map(ft).join('\n')} />
 
       <!-- prettier-ignore -->
-      <pre>
-import &#123; scaleThreshold &#125; from 'd3-scale';
+      <Code code={
+`import { scaleThreshold } from 'd3-scale';
 
 scaleThreshold()
-  .range(['{$selectedBreaks.colour.join(`', '`)}'])
-  .domain(['{$selectedBreaks.breaks.map(ft).join(`', '`)}']);
-      </pre>
+  .range(['${$selectedBreaks.colour.join('\', \'')}'])
+  .domain(['${$selectedBreaks.breaks.map(ft).join('\', \'')}']);`
+} />
     </div>
   {/if}
 </section>
