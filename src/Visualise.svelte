@@ -176,11 +176,9 @@
     colourScheme = schemeRdPu;
 
     breaks = computeBreaks(breakTicks, $columnData.data);
-    
+
     const colours = colourScheme[breakTicks + 1];
-    colour = scaleThreshold()
-      .range(colours)
-      .domain(breaks[scale]);
+    colour = scaleThreshold().range(colours).domain(breaks[scale]);
 
     x = scaleLinear()
       .range([0, width])
@@ -248,7 +246,7 @@
             id="breaks"
             type="number"
             min={3}
-            max={colourScheme.length - 1}
+            max={colourScheme.length - 2}
             on:change={(event) => (breakTicks = +event.target.value)}
             value={breakTicks}
           />
