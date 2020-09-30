@@ -20,10 +20,8 @@
   {#if $selectedBreaks}
     <div class="preview">
       <Code code={$selectedBreaks.breaks.map(ft).join(', ')} />
+      <Code code={`[${$selectedBreaks.breaks.map(ft).join(', ')}]`} />
       <Code code={$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')} />
-      <Code
-        code={`[${$selectedBreaks.breaks.map((d) => `'${ft(d)}'`).join(', ')}]`}
-      />
       <Code code={$selectedBreaks.breaks.map(ft).join('\n')} />
 
       <!-- prettier-ignore -->
