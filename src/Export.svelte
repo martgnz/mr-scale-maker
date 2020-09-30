@@ -32,7 +32,7 @@
 
 scaleThreshold()
   .range(['${$selectedBreaks.colour.join('\', \'')}'])
-  .domain(['${$selectedBreaks.breaks.map(ft).join('\', \'')}']);`
+  .domain([${$selectedBreaks.breaks.map(ft).join(', ')}]);`
 } />
     </div>
   {/if}
