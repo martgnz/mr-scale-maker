@@ -91,6 +91,27 @@
   .settings-value {
     /* font-family: monospace; */
   }
+  .colour-selector select {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .colour-schemes {
+    display: inline-block;
+  }
+  .colour-scheme {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+  }
+  .colour-scheme + .colour-scheme {
+    margin-top: 1rem;
+  }
+  .colour-scheme.active {
+    background: #ffffdd;
+  }
+  .colour-scale {
+    display: flex;
+  }
 
   .tooltip {
     background: white;
@@ -132,7 +153,7 @@
 </style>
 
 <script>
-  import { pointer } from "d3-selection";
+  import { pointer, select } from "d3-selection";
   import { scaleThreshold, scaleLinear } from "d3-scale";
   import { schemeRdPu } from "d3-scale-chromatic";
   import { extent, max, bin, bisector } from "d3-array";
@@ -140,6 +161,7 @@
 
   import { columnData, selectedBreaks } from "./stores.js";
   import computeBreaks from "./compute-breaks.js";
+  import colours from "./colours.js";
 
   const ft = format(",");
   const ft1 = format(".1f");
@@ -160,25 +182,24 @@
   let breakTicks = 6;
   let scale = "quantiles";
   let showStatistics = [];
+  let colourScheme = colours[0].scales[0];
+  let colourRange;
 
   let x;
   let y;
+  let z;
   let xTicks;
   let yTicks;
   let bins;
   let bisectBins;
   let breaks;
-  let colourScheme;
-  let colour;
   let hover;
+  let schemeType;
 
   $: if ($columnData) {
-    colourScheme = schemeRdPu;
-
+    // FIXME: swap n of breaks when switching from a divergent to a normal scale
+    colourRange = colourScheme.scheme[breakTicks + 1];
     breaks = computeBreaks(breakTicks, $columnData.data);
-
-    const colours = colourScheme[breakTicks + 1];
-    colour = scaleThreshold().range(colours).domain(breaks[scale]);
 
     x = scaleLinear()
       .range([0, width])
@@ -193,13 +214,15 @@
       .domain([0, max(bins, (d) => d.length)])
       .range([height, 0]);
 
+    z = scaleThreshold().range(colourRange).domain(breaks[scale]);
+
     xTicks = x.ticks(6);
     yTicks = y.ticks(6);
 
     // save our current settings to the store
     selectedBreaks.set({
       breaks: breaks[scale],
-      colour: colours,
+      colour: colourRange,
     });
   }
 
@@ -246,7 +269,7 @@
             id="breaks"
             type="number"
             min={3}
-            max={colourScheme.length - 2}
+            max={colourScheme.scheme[colourScheme.scheme.length - 1].length - 1}
             on:change={(event) => (breakTicks = +event.target.value)}
             value={breakTicks}
           />
@@ -330,7 +353,7 @@
                 <rect
                   width={Math.max(0, x(d.x1) - x(d.x0) - 1)}
                   height={height - y(d.length)}
-                  fill={colour(max(d))}
+                  fill={z(max(d))}
                   stroke={hover ? hover.x0 === d.x0 && 'black' : 'white'}
                   stroke-width={hover ? hover.x0 === d.x0 && 1.5 : 0.25}
                 />
@@ -404,4 +427,32 @@
       {/if}
     {/if}
   </div>
+
+  {#if $columnData}
+    <div class="colour-selector">
+      <select bind:value={schemeType}>
+        {#each colours as colour}
+          <option value={colour}>{colour.name}</option>
+        {/each}
+      </select>
+
+      {#if schemeType}
+        <div class="colour-schemes">
+          {#each schemeType.scales as scale}
+            <div
+              class={['colour-scheme', colourScheme.name === scale.name ? 'active' : ''].join(' ')}
+              on:click={() => (colourScheme = scale)}
+            >
+              <div class="colour-title">{scale.name}</div>
+              <div class="colour-scale">
+                {#each scale.scheme[breakTicks + 1] as slice}
+                  <div style="width:25px;height:15px;background: {slice}" />
+                {/each}
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 </section>
