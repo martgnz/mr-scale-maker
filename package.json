@@ -19,14 +19,17 @@
   },
   "dependencies": {
     "d3-array": "^2.8.0",
+    "d3-composite-projections": "^1.3.2",
     "d3-dsv": "^2.0.0",
     "d3-format": "^2.0.0",
+    "d3-geo": "^2.0.1",
     "d3-scale": "^3.2.3",
     "d3-scale-chromatic": "^2.0.0",
     "d3-selection": "^2.0.0",
     "lodash": "^4.17.20",
     "papaparse": "^5.3.0",
     "simple-statistics": "^7.3.0",
-    "sirv-cli": "^1.0.0"
+    "sirv-cli": "^1.0.0",
+    "topojson": "^3.0.2"
   }
 }
