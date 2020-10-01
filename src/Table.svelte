@@ -95,8 +95,7 @@
   import isFinite from "lodash/isFinite";
   import isString from "lodash/isString";
 
-  import { data } from "./stores.js";
-  import { columnData } from "./stores.js";
+  import { data, columnData } from "./stores.js";
 
   let tbody;
   let thead;
@@ -134,20 +133,20 @@
       select(thead)
         .selectAll("th")
         .nodes()
-        .filter(d => d.textContent === column)
-        .forEach(e => e.classList.add("checked"));
+        .filter((d) => d.textContent === column)
+        .forEach((e) => e.classList.add("checked"));
 
       select(tbody)
         .selectAll("td")
         .nodes()
-        .filter(d => d.cellIndex === cellIndex)
-        .forEach(e => e.classList.add("checked"));
+        .filter((d) => d.cellIndex === cellIndex)
+        .forEach((e) => e.classList.add("checked"));
     } else {
       select(event.target).classed("checked", true);
     }
 
     // set the data in the store
-    columnData.set({ data: $data.map(d => d[column]), column: column });
+    columnData.set({ data: $data.map((d) => d[column]), column: column });
   }
 </script>
 
@@ -162,7 +161,7 @@
             {#each $data.columns as column}
               <th
                 class={getCellType($data[0][column])}
-                on:click={event => updateColumn(column, event)}
+                on:click={(event) => updateColumn(column, event)}
               >
                 {column}
               </th>
@@ -175,7 +174,7 @@
             <tr>
               {#each $data.columns as column}
                 <td
-                  on:click={event => updateColumn(column, event)}
+                  on:click={(event) => updateColumn(column, event)}
                   class={getCellType(row[column])}
                 >
                   {row[column]}

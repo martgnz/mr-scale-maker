@@ -83,8 +83,8 @@
   import { dsvFormat, autoType } from "d3-dsv";
 
   import { data } from "./stores.js";
-  import bytesToSize from "./bytes-to-size.js";
-  import iris from "./iris.js";
+  import bytesToSize from "./utils/bytes-to-size.js";
+  import iris from "./utils/iris.js";
 
   let isDragging = false;
   let files;
@@ -202,16 +202,14 @@
               </svg>
 
               <div class="drag-filename">
-                {fileMetadata.name} ({bytesToSize(fileMetadata.size)})
+                {fileMetadata.name}
+                ({bytesToSize(fileMetadata.size)})
               </div>
             </div>
           {:else}
-            <div>
-              <strong>Error while reading the file</strong>
-            </div>
+            <div><strong>Error while reading the file</strong></div>
             <div>please upload a valid CSV</div>
           {/if}
-
         </label>
       </div>
     </form>

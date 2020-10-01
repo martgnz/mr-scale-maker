@@ -7,7 +7,7 @@
 <script>
   import { format } from "d3-format";
   import { selectedBreaks } from "./stores.js";
-  import Code from "./code.svelte";
+  import Code from "./components/code.svelte";
 
   // FIXME: we cap at two significant figures
   // should this be bigger?
