@@ -1,6 +1,6 @@
 <style>
   main {
-    padding: 0 2rem;
+    padding: 0 9px;
     max-width: 960px;
     margin: 1rem auto;
     line-height: 1.4;
