@@ -57,7 +57,9 @@
             range: [bins[idx].x0, bins[idx].x1],
           };
         })
-        .filter((d) => d.value > 0)
+        .filter((d) => {
+          return d.value > 0;
+        })
         .sort((b, a) => a.value - b.value);
 
       const totalRanges = sum(ranges, (d) => d.value);
@@ -68,14 +70,11 @@
 
       let rangeIndex = 0;
       let featuresAssigned = 0;
-      let outOfRange = 0;
+      let outOfRange;
 
       data
         .sort((b, a) => {
           return ascending(a.properties.centroid[0], b.properties.centroid[0]);
-        })
-        .sort((b, a) => {
-          return descending(a.properties.centroid[1], b.properties.centroid[1]);
         })
         .forEach((country, i) => {
           const { range, nFeatures } = ranges[rangeIndex];
@@ -87,12 +86,14 @@
             rangeIndex++;
             featuresAssigned = 0;
           }
+
+          ++outOfRange || null;
+
           // we can't count features as decimal so it is possible that a few polygons get out of range
           // so we started the count from scratch
           if (rangeIndex >= ranges.length) {
             rangeIndex = 0;
-            outOfRange++;
-            console.log({ outOfRange });
+            outOfRange = 0;
           }
         });
       console.log(`${outOfRange} features out of range`);
