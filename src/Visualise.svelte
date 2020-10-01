@@ -6,7 +6,8 @@
     position: relative;
   }
 
-  .settings {
+  .settings,
+  .settings-map-block {
     display: flex;
     align-items: flex-start;
     flex-direction: column;
@@ -14,7 +15,8 @@
     margin-bottom: 0.5rem;
   }
   @media (min-width: 900px) {
-    .settings {
+    .settings,
+    .settings-map-block {
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
@@ -47,10 +49,9 @@
       <Histogram />
     </div>
 
-    <div class="map">
+    <div class="settings-map-block">
+      <ColourSelector />
       <Map />
     </div>
-
-    <ColourSelector />
   {/if}
 </section>

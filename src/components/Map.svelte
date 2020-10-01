@@ -5,6 +5,9 @@
   #selected-country {
     text-align: center;
   }
+  .map {
+    flex-basis: 66.66%;
+  }
 </style>
 
 <script>
@@ -125,9 +128,7 @@
   }
 
   function getWidth() {
-    const { width } = document
-      .querySelector("#visualise-map")
-      .getBoundingClientRect();
+    const { width } = document.querySelector(".map").getBoundingClientRect();
     return width;
   }
 
@@ -139,7 +140,7 @@
   }
 </script>
 
-<section id="visualise-map">
+<div class="map">
   <svg {width} {height}>
     {#each data as feature}
       <path
@@ -151,4 +152,4 @@
     {/each}
   </svg>
   <div id="selected-country" />
-</section>
+</div>
