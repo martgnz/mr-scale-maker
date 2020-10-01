@@ -28,6 +28,7 @@
   import ColourSelector from "./components/ColourSelector.svelte";
   import StatisticsSelector from "./components/StatisticsSelector.svelte";
   import Histogram from "./components/Histogram.svelte";
+  import Map from "./components/Map.svelte";
 
   import { columnData } from "./stores.js";
 </script>
@@ -44,6 +45,10 @@
 
     <div class="preview">
       <Histogram />
+    </div>
+
+    <div class="map">
+      <Map />
     </div>
 
     <ColourSelector />

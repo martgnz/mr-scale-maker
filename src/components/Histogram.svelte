@@ -63,10 +63,12 @@
     scale,
     columnData,
     colourScheme,
+    colourScale,
     selectedBreaks,
     binTicks,
     showStatistics,
     breaks,
+    binsData,
   } from "../stores.js";
 
   const ft = format(",");
@@ -117,6 +119,7 @@
       .domain(extent($columnData.data, (d) => d));
 
     bins = bin().domain(x.domain()).thresholds($binTicks)($columnData.data);
+    binsData.set(bins);
 
     // we don't want to map on every mouseevent
     bisectBins = bins.map((d) => d.x1);
@@ -126,6 +129,7 @@
       .range([height, 0]);
 
     z = scaleThreshold().range($selectedBreaks.colour).domain($breaks[$scale]);
+    colourScale.set(z);
 
     xTicks = x.ticks(6);
     yTicks = y.ticks(6);
