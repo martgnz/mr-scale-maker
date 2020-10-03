@@ -1,5 +1,6 @@
 <style>
   section {
+    margin-top: 2rem;
     margin-bottom: 2rem;
   }
   .data-input {
@@ -7,37 +8,59 @@
   }
   .demo-dataset {
     display: inline;
+    color: var(--grey-text);
     cursor: pointer;
   }
   .demo-dataset:hover {
     text-decoration: underline;
   }
-  .small-note {
-    margin-top: 0.25rem;
-    color: #777;
-    font-size: small;
-  }
+
   .load-sample:hover {
     text-decoration: underline;
   }
   .drag {
     text-align: center;
-    outline: 2px dashed #92b0b3;
+    outline: 1px dashed var(--grey-stroke);
     font-size: 1.25rem;
-    background-color: white;
+    background-color: var(--grey-bg);
     position: relative;
     transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
   }
-  .drag:hover {
-    background-color: #ebf7fb;
-  }
+  .drag:hover,
   .drag.is-dragging {
-    background-color: #ebf7fb;
+    outline: 2px dashed var(--grey-stroke);
   }
-
+  .drag-file + label {
+    position: relative;
+    box-sizing: border-box;
+    padding: 1rem;
+    width: 100%;
+    height: 175px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .drag-callout {
+    margin-top: -1rem;
+  }
+  .drag-callout-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    position: relative;
+  }
   .drag-icon {
-    height: 30px;
+    position: absolute;
+    top: 0.25rem;
+    left: -2rem;
     fill: #333;
+  }
+  .small-note {
+    position: absolute;
+    bottom: 1rem;
+    color: var(--grey-text);
+    font-size: small;
   }
   .drag-file {
     width: 0.1px;
@@ -47,16 +70,13 @@
     position: absolute;
     z-index: -1;
   }
-  .drag-file + label {
-    box-sizing: border-box;
-    padding: 2rem;
-    width: 100%;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+  .drag-filename {
+    font-weight: 500;
+  }
+  .drag-filesize {
+    margin-top: 0.25rem;
+    color: var(--grey-text);
+    font-size: small;
   }
   .drag-success {
     height: 100px;
@@ -67,6 +87,14 @@
     text-align: center;
     padding: 5rem;
     background: #f8f8f8;
+  }
+  .drag-error-title {
+    font-weight: 500;
+  }
+  .drag-error-hint {
+    margin-top: 0.25rem;
+    color: var(--grey-text);
+    font-size: 1rem;
   }
   .error svg {
     fill: #e6e6e6;
@@ -79,6 +107,7 @@
 </style>
 
 <script>
+  import StepHeader from "./components/StepHeader.svelte";
   import { parse } from "papaparse";
   import { dsvFormat, autoType } from "d3-dsv";
 
@@ -140,7 +169,9 @@
 </script>
 
 <section id="upload">
-  <h2>1. Upload your data (don't worry, everything stays in your computer)</h2>
+  <StepHeader step={1}>
+    Upload your spreadsheet (don't worry, everything stays in your computer)
+  </StepHeader>
 
   <div class="data-input">
     <form
@@ -152,7 +183,7 @@
       method="post"
       enctype="multipart/form-data"
     >
-      <div class="drag-input">
+      <div class={['drag-input', isUploaded ? 'is-uploaded' : ''].join(' ')}>
         <input
           id="file"
           class="drag-file"
@@ -162,53 +193,32 @@
         />
         <label for="file">
           {#if isValidFile && !isUploaded}
-            <div>
-              <svg
-                class="drag-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-              >
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z" />
-              </svg>
-              <div>
-                <strong>Drop a file</strong>
-                <span class="drag-select">or select it</span>
+            <div class="drag-callout">
+              <div class="drag-callout-title">
+                <svg
+                  class="drag-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  width="24"
+                >
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z" />
+                </svg>
+
+                <div>Drop your file</div>
               </div>
-              <div class="small-note">CSV and TSV files are supported</div>
-              <div
-                class="small-note load-sample"
-                on:click|preventDefault={loadSample}
-              >
-                (load sample data)
-              </div>
+              <div class="drag-select">or select it</div>
             </div>
+            <div class="small-note">CSV and TSV files are supported</div>
           {:else if isUploaded}
             <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path
-                  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9
-                  2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3
-                  3-1.34 3-3 3zm3-10H5V5h10v4z"
-                />
-              </svg>
-
-              <div class="drag-filename">
-                {fileMetadata.name}
-                ({bytesToSize(fileMetadata.size)})
-              </div>
+              <div class="drag-filename">{fileMetadata.name}</div>
+              <div class="drag-filesize">{bytesToSize(fileMetadata.size)}</div>
             </div>
           {:else}
-            <div><strong>Error while reading the file</strong></div>
-            <div>please upload a valid CSV</div>
+            <div class="drag-error-title">Error while reading the file</div>
+            <div class="drag-error-hint">please upload a valid CSV</div>
           {/if}
         </label>
       </div>
