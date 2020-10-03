@@ -8,9 +8,11 @@
   --grey: #e2e2e2;
   --grey-hover: #f5f5f5;
   --grey-bg: #fbfbfb;
+  --grey-light: #e8e7e7;
   --grey-text: #7c7c7c;
   --grey-stroke: #979797;
   --red-highlight: #ff445b;
+  --blue-highlight: #439cf6;
 }
 
 html {

@@ -1,7 +1,8 @@
 <style>
   select {
     display: block;
-    margin-bottom: 0.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
   }
   .colour-schemes {
     display: inline-block;

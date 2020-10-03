@@ -14,7 +14,7 @@
     padding: 0.75rem 1.5rem;
     font-weight: 500;
     color: white;
-    background: #439cf6;
+    background: var(--blue-highlight);
     font-size: 1rem;
     border: none;
   }
@@ -63,7 +63,7 @@
     position: relative;
   }
   td {
-    border-bottom: 1px solid #e8e7e7;
+    border-bottom: 1px solid var(--grey-light);
     white-space: nowrap;
     max-width: 20%;
   }
