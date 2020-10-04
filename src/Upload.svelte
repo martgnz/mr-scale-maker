@@ -187,9 +187,11 @@
   function readFile(file) {
     const reader = new FileReader();
 
-    // FIXME: this seems too broad
-    // should we really restrict to csv/tsv?
-    if (file.type.match("text.*")) {
+    if (
+      file.type.match("text/csv") ||
+      file.type.match("text/tsv") ||
+      file.type.match("text/txt")
+    ) {
       reader.readAsText(file);
 
       reader.onload = () => {
