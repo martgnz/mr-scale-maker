@@ -22,7 +22,7 @@
 </script>
 
 <section id="export">
-  <StepHeader enabled={$selectedBreaks} step={4}>Copy the breaks</StepHeader>
+  <StepHeader enabled={$selectedBreaks} step={4}>Export the scale</StepHeader>
 
   {#if $selectedBreaks}
     <div class="preview">
