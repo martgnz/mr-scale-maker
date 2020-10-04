@@ -22,6 +22,7 @@
     .preview {
       align-items: flex-start;
       justify-content: space-between;
+      flex-direction: row;
     }
     .settings {
       flex-basis: 25%;
