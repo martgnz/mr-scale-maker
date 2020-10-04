@@ -1,7 +1,4 @@
 <style>
-  section {
-    margin-bottom: 2rem;
-  }
   .preview {
     position: relative;
     margin-top: 0.5rem;

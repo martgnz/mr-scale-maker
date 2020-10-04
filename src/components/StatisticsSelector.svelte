@@ -1,10 +1,19 @@
 <style>
   .statistics {
     display: flex;
+    flex-direction: column;
     font-size: 0.85rem;
   }
   .statistic + .statistic {
-    margin-left: 0.5rem;
+    margin-left: 0;
+  }
+  @media (min-width: 600px) {
+    .statistics {
+      flex-direction: row;
+    }
+    .statistic + .statistic {
+      margin-left: 0.5rem;
+    }
   }
 </style>
 

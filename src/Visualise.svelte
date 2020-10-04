@@ -1,25 +1,39 @@
 <style>
-  section {
-    margin-bottom: 2rem;
-  }
   .preview {
     position: relative;
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  .settings {
-    flex-basis: 25%;
+    flex-direction: column-reverse;
   }
   .chart {
+    background: white;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--black);
     position: sticky;
     top: 0;
-    flex-basis: 70%;
   }
   .histogram-settings {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  @media (min-width: 600px) {
+    .preview {
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .settings {
+      flex-basis: 25%;
+    }
+    .chart {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      position: sticky;
+      top: 0;
+      flex-basis: 70%;
+    }
   }
 </style>
 

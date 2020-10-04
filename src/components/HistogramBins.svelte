@@ -1,10 +1,21 @@
 <style>
   .histogram-bins {
     display: flex;
-    align-items: center;
+    flex-direction: column;
   }
   .histogram-bins-title {
-    margin-right: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.15rem;
+  }
+  @media (min-width: 600px) {
+    .histogram-bins {
+      font-size: 1rem;
+      align-items: center;
+      flex-direction: row;
+    }
+    .histogram-bins-title {
+      margin-right: 0.5rem;
+    }
   }
 </style>
 

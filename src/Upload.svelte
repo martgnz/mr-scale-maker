@@ -1,7 +1,6 @@
 <style>
   section {
     margin-top: 2rem;
-    margin-bottom: 2rem;
   }
   .data-input {
     margin: 1rem 0;
