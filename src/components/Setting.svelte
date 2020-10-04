@@ -3,6 +3,7 @@
     margin-bottom: 1.5rem;
   }
   .setting-title {
+    position: relative;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid var(--black);
@@ -19,16 +20,47 @@
   .setting-help svg:hover {
     fill: var(--blue-highlight);
   }
+  .setting-help.active svg {
+    fill: var(--blue-highlight);
+  }
+  .help-tooltip {
+    right: 0;
+    top: 1.5rem;
+    line-height: 1.3;
+    width: 200px;
+    pointer-events: none;
+    font-size: 0.85rem;
+    position: absolute;
+    background: white;
+    padding: 4px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid #f5f5f5;
+    z-index: 1;
+  }
+  :global(.help-tooltip p) {
+    margin-bottom: 0.35rem;
+  }
 </style>
 
 <script>
   export let name = "Setting";
+  export let help = "This is some help text";
+
+  let showTooltip = false;
 </script>
 
 <div class="setting-group">
   <div class="setting-title">
+    <div class="help-tooltip" style="display: {showTooltip ? 'block' : 'none'}">
+      {@html help}
+    </div>
+
     <div class="setting-name">{name}</div>
-    <div class="setting-help">
+    <div
+      class={['setting-help', showTooltip ? 'active' : ''].join(' ')}
+      on:mousemove={() => (showTooltip = true)}
+      on:mouseleave={() => (showTooltip = false)}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         height="18"
