@@ -3,7 +3,7 @@
     position: relative;
   }
   .axis {
-    font-family: sans-serif;
+    font-family: var(--sans-serif);
     font-size: 13px;
   }
   .x.axis .tick line {
@@ -24,15 +24,10 @@
   }
   .statistics {
     font-size: 11px;
-    fill: #7a7a7a;
+    fill: var(--grey-text);
   }
   .zero {
     stroke: #111;
-  }
-  .halo {
-    stroke-width: 4px;
-    stroke: white;
-    stroke-linejoin: round;
   }
   .column-name {
     font-style: italic;
@@ -69,8 +64,8 @@
     breaks,
   } from "../stores.js";
 
-  const ft = format(",");
-  const ft1 = format(".1f");
+  const ft0 = format(",.0f");
+  const ft = format(".1f");
 
   let x;
   let y;
@@ -84,7 +79,7 @@
   let width;
   let height;
 
-  const margin = { top: 50, right: 10, bottom: 60, left: 10 };
+  const margin = { top: 35, right: 10, bottom: 50, left: 10 };
 
   onMount(() => {
     handleResize();
@@ -160,11 +155,13 @@
         {#each xTicks as tick}
           <g class="tick" transform={`translate(${x(tick)},0)`}>
             <line y2={6} />
-            <text text-anchor="middle" dy={20}>{ft(tick)}</text>
+            <text text-anchor="middle" dy={20}>
+              {tick > 100 ? ft0(tick) : ft(tick)}
+            </text>
           </g>
         {/each}
 
-        <text class="column-name" x={width / 2} dy={50}>
+        <text class="column-name" x={width / 2} dy={40}>
           {$columnData.column}
         </text>
       </g>
@@ -179,7 +176,7 @@
 
       <g>
         {#each bins as d}
-          <g class="bar" transform={`translate(${x(d.x0)},${y(d.length)})`}>
+          <g transform={`translate(${x(d.x0)},${y(d.length)})`}>
             <rect
               width={Math.max(0, x(d.x1) - x(d.x0) - 1)}
               height={height - y(d.length)}
@@ -194,8 +191,8 @@
       <g class="y axis">
         {#each yTicks as tick, idx}
           <g class="tick" transform={`translate(0,${y(tick)})`}>
-            <text text-anchor="start" dy={-5} dx={4}>
-              {ft(tick)}{' '}{yTicks.length - 1 === idx ? 'records' : ''}
+            <text text-anchor="start" dy={-5} dx={0}>
+              {ft0(tick)}{' '}{yTicks.length - 1 === idx ? 'records' : ''}
             </text>
           </g>
         {/each}
@@ -206,7 +203,9 @@
           <g transform={`translate(${x(d)},0)`}>
             <line y1={-15} y2={height} />
             <path transform="translate(-3,-15)" d="M0 0 L 6 0 L 3 7Z" />
-            <text text-anchor="middle" dy={-20}>{ft1(d)}</text>
+            <text text-anchor="middle" dy={-20}>
+              {d > 100 ? ft0(d) : ft(d)}
+            </text>
           </g>
         {/each}
       </g>
@@ -217,14 +216,13 @@
             opacity={$showStatistics.includes(d.label) ? 1 : 0}
             transform={`translate(${x(d.value)},${height})`}
           >
+            <rect x={-15} width={30} height={30} fill="white" />
             <path transform="translate(-3,0)" d="M0 0 L 6 0 L 3 7Z" />
 
-            <text class="halo" text-anchor="middle" dy={15}>{d.label}</text>
             <text text-anchor="middle" dy={15}>{d.label}</text>
-            <text class="halo" text-anchor="middle" dy={28}>
-              {ft1(d.value)}
+            <text text-anchor="middle" dy={28}>
+              {d.value > 100 ? ft0(d.value) : ft(d.value)}
             </text>
-            <text text-anchor="middle" dy={28}>{ft1(d.value)}</text>
           </g>
         {/each}
       </g>
@@ -250,9 +248,9 @@
       {hover.value}
       record{hover.value === 1 ? '' : 's'}
       between
-      {hover.x0}
+      {hover.x0 > 100 ? ft0(hover.x0) : ft(hover.x0)}
       and
-      {hover.x1}
+      {hover.x1 > 100 ? ft0(hover.x1) : ft(hover.x1)}
     </div>
   {/if}
 </div>

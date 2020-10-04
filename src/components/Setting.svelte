@@ -1,5 +1,5 @@
 <style>
-  .setting-group {
+  .setting-group:not(:last-child) {
     margin-bottom: 1.5rem;
   }
   .setting-title {

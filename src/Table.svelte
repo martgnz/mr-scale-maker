@@ -72,15 +72,15 @@
     font-weight: 500;
     border-bottom: 1px solid #111;
   }
-  th:not(:last-child),
-  td:not(:last-child) {
-    padding-left: 5px;
-    padding-right: 25px;
-  }
-  th:last-child,
-  td:last-child {
-    padding-right: 5px;
+  th:not(:first-child),
+  td:not(:first-child) {
     padding-left: 25px;
+    padding-right: 5px;
+  }
+  th:first-child,
+  td:first-child {
+    padding-right: 25px;
+    padding-left: 5px;
   }
   th:not(:first-child):not(:last-child) {
     padding-bottom: 2px;

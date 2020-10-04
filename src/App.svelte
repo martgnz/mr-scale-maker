@@ -32,6 +32,7 @@
   import Table from "./Table.svelte";
   import Visualise from "./Visualise.svelte";
   import Export from "./Export.svelte";
+  import Footer from "./Footer.svelte";
 </script>
 
 <main>
@@ -44,4 +45,5 @@
   <Table />
   <Visualise />
   <Export />
+  <Footer />
 </main>

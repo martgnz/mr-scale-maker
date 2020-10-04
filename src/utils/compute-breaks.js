@@ -1,5 +1,5 @@
-import { scaleQuantile } from "d3-scale";
-import { range, median, mean } from "d3-array";
+import { scaleQuantile, scaleQuantize } from "d3-scale";
+import { range, extent, median, mean } from "d3-array";
 import {
   equalIntervalBreaks,
   ckmeans,
@@ -10,13 +10,29 @@ import {
 export default function (classes, data) {
   const breaks = {};
 
+  const classesRange = range(0, classes + 1);
+
   const quantiles = scaleQuantile()
-    .range(range(0, classes + 1))
+    .range(classesRange)
     .domain(data)
     .quantiles();
 
-  const equalBreaks = equalIntervalBreaks(data, classes - 1);
-  const ckmeansBreaks = ckmeans(data, classes);
+  const quantize = scaleQuantize()
+    .range(classesRange)
+    .domain(extent(data))
+    .thresholds();
+
+  const quantizeNice = scaleQuantize()
+    .range(classesRange)
+    .domain(extent(data))
+    .nice()
+    .thresholds();
+
+  const equalBreaks = equalIntervalBreaks(data, classes + 1)
+    .slice(1)
+    .slice(0, -1);
+
+  const ckmeansBreaks = ckmeans(data, classes + 1);
 
   const medians = median(data);
   const means = mean(data);
@@ -24,12 +40,12 @@ export default function (classes, data) {
   const stdDeviation = standardDeviation(data);
 
   // https://github.com/simple-statistics/simple-statistics/blob/4db0dd820ebb5bc9bd7635715a3ef8a4678e180e/CHANGELOG.md#jenks---ckmeans
-  breaks.ckmeans = ckmeansBreaks.map(function (cluster) {
-    return cluster[0];
-  });
+  breaks.ckmeans = ckmeansBreaks.map((cluster) => cluster[0]).slice(1);
 
   breaks["equal breaks"] = equalBreaks;
   breaks.quantiles = quantiles;
+  breaks.quantize = quantize;
+  breaks["quantize (nice)"] = quantizeNice;
   breaks.statistics = [
     {
       label: "median",

@@ -14,7 +14,13 @@
   import { scale } from "../stores";
 
   // FIXME: is there some way to make adding a new scale easier?
-  const scales = ["quantiles", "equal breaks", "ckmeans"];
+  const scales = [
+    "quantiles",
+    "quantize",
+    "quantize (nice)",
+    // "equal breaks",
+    "ckmeans",
+  ];
   let selected = "quantiles";
 </script>
 
