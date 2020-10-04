@@ -1,7 +1,8 @@
 <style>
   pre {
     position: relative;
-    font-family: monospace;
+    font-size: 0.85rem;
+    font-family: var(--mono);
     background: #f6f6f6;
     overflow: auto;
     padding: 1rem;
