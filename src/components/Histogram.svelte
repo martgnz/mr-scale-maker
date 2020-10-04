@@ -97,7 +97,6 @@
   const bisect = bisector((d) => d).right;
 
   $: if ($columnData) {
-    // FIXME: swap n of breaks when switching from a divergent to a normal scale
     breaks.set(computeBreaks($breakTicks, $columnData.data));
 
     // save our current settings to the store
