@@ -7,11 +7,10 @@
     font-size: 13px;
   }
   .x.axis .tick line {
-    stroke: #111;
+    stroke: var(--black);
   }
   .y.axis .tick line {
-    stroke-opacity: 0.25;
-    stroke: #9b9b9b;
+    stroke: var(--grey);
   }
   .breaks line {
     stroke: #111;
@@ -20,14 +19,14 @@
     font-size: 14px;
   }
   .breaks path {
-    fill: #111;
+    fill: var(--black);
   }
   .statistics {
     font-size: 11px;
-    fill: var(--grey-text);
+    fill: var(--black);
   }
   .zero {
-    stroke: #111;
+    stroke: var(--black);
   }
   .column-name {
     font-style: italic;

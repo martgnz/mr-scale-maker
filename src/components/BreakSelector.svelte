@@ -12,7 +12,7 @@
   import { breakTicks, colourScheme } from "../stores.js";
 
   let min = 3;
-  let max = $colourScheme.scheme[$colourScheme.scheme.length - 1].length - 1;
+  $: max = $colourScheme.scheme[$colourScheme.scheme.length - 1].length - 1;
 
   function handleBreakChange(event) {
     const value = +event.target.value;

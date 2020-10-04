@@ -71,10 +71,28 @@
 
   // show single-hue by default
   let scaleType = colours[0];
+
+  function handleScaleType() {
+    const firstScale = scaleType.scales[0];
+    const maxTicks = firstScale.scheme[firstScale.scheme.length - 1].length;
+
+    // if the number of breaks is higher than the number of colours
+    // reduce the number of breaks
+    if ($breakTicks + 1 > maxTicks) {
+      breakTicks.set(maxTicks - 1);
+    }
+
+    colourScheme.set(scaleType.scales[0]);
+  }
 </script>
 
 <Setting name="Colour scale">
-  <select bind:value={scaleType} selected={scaleType}>
+  <select
+    bind:value={scaleType}
+    on:change={handleScaleType}
+    on:blur={handleScaleType}
+    selected={scaleType}
+  >
     {#each colours as colour}
       <option value={colour}>{colour.name}</option>
     {/each}
