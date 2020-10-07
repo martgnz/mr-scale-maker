@@ -52,6 +52,7 @@
   /* transform: rotate(-4deg); */
   /* } */
   .icon-bg-magic {
+    pointer-events: none;
     z-index: 0;
     position: absolute;
     right: -1rem;
@@ -63,6 +64,7 @@
     transition: transform 0.2s;
   }
   .icon-bg-error {
+    pointer-events: none;
     z-index: 0;
     position: absolute;
     right: -1rem;
@@ -74,6 +76,7 @@
     transition: transform 0.2s;
   }
   .icon-bg-success {
+    pointer-events: none;
     z-index: 0;
     position: absolute;
     right: -2rem;
@@ -114,9 +117,11 @@
     z-index: -1;
   }
   .drag-filename {
+    pointer-events: none;
     font-weight: 500;
   }
   .drag-filesize {
+    pointer-events: none;
     margin-top: 0.25rem;
     color: var(--grey-text);
     font-size: small;
@@ -215,7 +220,7 @@
 
 <section id="upload">
   <StepHeader step={1}>
-    Upload your spreadsheet (don't worry, everything stays in your computer)
+    Upload your spreadsheet (don't worry, everything stays on your computer)
   </StepHeader>
 
   <div class="data-input">

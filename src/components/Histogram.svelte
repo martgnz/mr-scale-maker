@@ -46,7 +46,7 @@
 
 <script>
   import { onMount } from "svelte";
-  import { pointer } from "d3-selection";
+  import { pointer, window } from "d3-selection";
   import { scaleThreshold, scaleLinear } from "d3-scale";
   import { format } from "d3-format";
   import { extent, max, bin, bisector } from "d3-array";
@@ -65,6 +65,7 @@
 
   const ft0 = format(",.0f");
   const ft = format(".1f");
+  const ftc = format(",");
 
   let x;
   let y;
@@ -75,6 +76,7 @@
   let bisectBins;
   let hover;
   let container;
+  let windowWidth;
   let width;
   let height;
 
@@ -86,8 +88,9 @@
 
   function handleResize() {
     const nodeWidth = container.getBoundingClientRect().width;
-    const isMobile = nodeWidth < 600;
-    const ratio = isMobile ? 0.75 : 0.5;
+    const isSticky = windowWidth < 960;
+    const isMobile = windowWidth < 600;
+    const ratio = isMobile ? 0.75 : isSticky ? 0.35 : 0.5;
 
     width = nodeWidth - margin.right - margin.left;
     height = Math.min(nodeWidth * ratio, 400) - margin.top - margin.bottom;
@@ -141,7 +144,7 @@
   }
 </script>
 
-<svelte:window on:resize={handleResize} />
+<svelte:window bind:innerWidth={windowWidth} on:resize={handleResize} />
 
 <div bind:this={container} class="container">
   <svg
@@ -243,7 +246,7 @@
     >
       There
       {hover.value === 1 ? 'is' : 'are'}
-      {hover.value}
+      {ftc(hover.value)}
       record{hover.value === 1 ? '' : 's'}
       between
       {hover.x0 > 100 ? ft0(hover.x0) : ft(hover.x0)}

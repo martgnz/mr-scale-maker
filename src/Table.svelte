@@ -127,11 +127,14 @@
 </style>
 
 <script>
+  import { format } from "d3-format";
   import { select, selectAll } from "d3-selection";
 
   import StepHeader from "./components/StepHeader.svelte";
   import getCellType from "./utils/get-cell-type";
   import { data, columnData } from "./stores.js";
+
+  const ft = format(',');
 
   $: showRows = 5;
   $: handleMoreRows = () => {
@@ -224,7 +227,7 @@
         on:click={handleMoreRows}
         disabled={showRows === $data.length}
       >Load more rows</button>
-      <div class="row-size">{showRows}/{$data.length} rows</div>
+      <div class="row-size">{ft(showRows)}/{ft($data.length)} rows</div>
     {/if}
   </div>
 </section>

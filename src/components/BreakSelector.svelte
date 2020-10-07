@@ -23,7 +23,7 @@
 
 <Setting
   name={'Number of breaks'}
-  help="<p>Adding more breaks to a scale decreases the amount of generalisation.</p>
+  help="<p>Adding more breaks to a scale decreases the degree of generalisation.</p>
   <p>However, having too many can make the graphic harder to understand and obscure general trends.</p>"
 >
   <input

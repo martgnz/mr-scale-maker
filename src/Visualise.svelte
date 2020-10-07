@@ -18,7 +18,7 @@
     align-items: center;
   }
 
-  @media (min-width: 600px) {
+  @media (min-width: 960px) {
     .preview {
       align-items: flex-start;
       justify-content: space-between;
