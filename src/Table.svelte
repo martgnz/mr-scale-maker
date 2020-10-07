@@ -185,7 +185,7 @@
 </script>
 
 <section id="choose">
-  <StepHeader step={2}>
+  <StepHeader enabled={$data} step={2}>
     Select the (numeric) column that you want to inspect
   </StepHeader>
 

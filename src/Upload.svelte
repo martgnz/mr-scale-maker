@@ -129,6 +129,9 @@
   .drag-success {
     height: 100px;
   }
+  .underline {
+    text-decoration: underline;
+  }
   .error {
     position: relative;
     overflow: hidden;
@@ -220,7 +223,7 @@
 
 <section id="upload">
   <StepHeader step={1}>
-    Upload your spreadsheet (don't worry, everything stays on your computer)
+    Upload your spreadsheet (don’t worry, everything stays on your computer)
   </StepHeader>
 
   <div class="data-input">
@@ -279,7 +282,7 @@
 
                 <div>Drop your file</div>
               </div>
-              <div class="drag-select">or select it</div>
+              <div class="drag-select">or <span class="underline">select it</span></div>
             </div>
             <div class="small-note">CSV and TSV files are supported</div>
           {:else if isUploaded}

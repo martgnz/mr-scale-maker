@@ -55,8 +55,8 @@
     Visualise the distribution and choose your breaks
   </StepHeader>
 
+  {#if $columnData}
   <div class="preview">
-    {#if $columnData}
       <div class="settings">
         <MethodSelector />
         <BreakSelector />
@@ -71,6 +71,6 @@
           <StatisticsSelector />
         </div>
       </div>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </section>
