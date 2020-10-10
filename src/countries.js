@@ -1,7 +1,6 @@
 const countries = [
   "uganda",
   "liberia",
-  "burundi",
   "angola",
   "cameroon",
   "madagascar",
@@ -10,7 +9,6 @@ const countries = [
   "sierra_leone",
   "ethiopia",
   "algeria",
-  "malawi",
   "south_africa",
   "mozambique",
   "guinea",
