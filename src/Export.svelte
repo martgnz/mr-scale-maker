@@ -5,23 +5,30 @@
 </style>
 
 <script>
+  import StepHeader from "./components/StepHeader.svelte";
   import { format } from "d3-format";
   import { selectedBreaks } from "./stores.js";
-  import Code from "./components/code.svelte";
+  import Code from "./components/Code.svelte";
 
-  // FIXME: we cap at two significant figures
-  // should this be bigger?
+  // FIXME: if it is over 100 we ignore decimals
+  // is this too restrictive?
+  const ft0 = format(".0f");
   const ft = format(".2~f");
+
+  let breaks;
+  $: if ($selectedBreaks) {
+    breaks = $selectedBreaks.breaks.map((d) => (d > 100 ? ft0(d) : ft(d)));
+  }
 </script>
 
 <section id="export">
-  <h2>4. Export the scale</h2>
+  <StepHeader enabled={$selectedBreaks} step={4}>Export the scale</StepHeader>
 
   {#if $selectedBreaks}
     <div class="preview">
-      <Code code={$selectedBreaks.breaks.map(ft).join(', ')} />
-      <Code code={`[${$selectedBreaks.breaks.map(ft).join(', ')}]`} />
-      <Code code={$selectedBreaks.breaks.map(ft).join('\n')} />
+      <Code code={breaks.join(', ')} />
+      <Code code={`[${breaks.join(', ')}]`} />
+      <Code code={breaks.join('\n')} />
 
       <!-- prettier-ignore -->
       <Code code={
@@ -29,7 +36,7 @@
 
 scaleThreshold()
   .range(['${$selectedBreaks.colour.join('\', \'')}'])
-  .domain([${$selectedBreaks.breaks.map(ft).join(', ')}]);`
+  .domain([${breaks.join(', ')}]);`
 } />
     </div>
   {/if}

@@ -1,14 +1,47 @@
 <style>
-  section {
-    margin-bottom: 2rem;
-  }
   .preview {
+    position: relative;
     margin-top: 0.5rem;
+    text-align: center;
+  }
+  button {
+    margin-top: 0.75rem;
+    cursor: pointer;
+    border-radius: 2rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    color: white;
+    background: var(--blue-highlight);
+    font-size: 1rem;
+    border: none;
+  }
+  button:not([disabled]):hover {
+    background: #3988d6;
+  }
+  button[disabled] {
+    cursor: default;
+    opacity: 0.5;
+  }
+  .row-size {
+    color: var(--grey-text);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 350px) {
+    .row-size {
+      margin-top: 0;
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0;
+    }
+  }
+  .table-container {
     overflow-x: scroll;
   }
   table {
     width: 100%;
-    font-family: monospace;
+    font-family: var(--mono);
+    font-size: 0.85rem;
     position: relative;
     overflow: hidden;
     text-align: left;
@@ -19,7 +52,7 @@
     bottom: 0;
     height: 4rem;
     width: 100%;
-    background-image: linear-gradient(to bottom, transparent, white);
+    /* background-image: linear-gradient(to bottom, transparent, white); */
     pointer-events: none;
   }
   td,
@@ -27,20 +60,25 @@
     position: relative;
   }
   td {
-    border-bottom: 1px solid #e8e7e7;
+    border-bottom: 1px solid var(--grey-light);
+    white-space: nowrap;
+    max-width: 20%;
   }
   th {
+    font-family: var(--sans-serif);
+    font-weight: 500;
     border-bottom: 1px solid #111;
+    vertical-align: bottom;
   }
-  th:not(:last-child),
-  td:not(:last-child) {
-    padding-left: 5px;
-    padding-right: 25px;
-  }
-  th:last-child,
-  td:last-child {
-    padding-right: 5px;
+  th:not(:first-child),
+  td:not(:first-child) {
     padding-left: 25px;
+    padding-right: 5px;
+  }
+  th:first-child,
+  td:first-child {
+    padding-right: 25px;
+    padding-left: 5px;
   }
   th:not(:first-child):not(:last-child) {
     padding-bottom: 2px;
@@ -90,31 +128,28 @@
 </style>
 
 <script>
+  import { format } from "d3-format";
   import { select, selectAll } from "d3-selection";
-  import isDate from "lodash/isDate";
-  import isFinite from "lodash/isFinite";
-  import isString from "lodash/isString";
 
+  import StepHeader from "./components/StepHeader.svelte";
+  import getCellType from "./utils/get-cell-type";
   import { data, columnData } from "./stores.js";
+
+  const ft = format(",");
+
+  $: showRows = 10;
+  $: handleMoreRows = () => {
+    if (showRows + 10 > $data.length) {
+      showRows = $data.length;
+      return;
+    }
+
+    showRows = 10 + showRows;
+    return;
+  };
 
   let tbody;
   let thead;
-
-  function getCellType(d) {
-    switch (true) {
-      case isDate(d):
-        return "date";
-        break;
-      case isFinite(d):
-        return "number";
-        break;
-      case isString(d):
-        return "string";
-        break;
-      default:
-        return "";
-    }
-  }
 
   function updateColumn(column, event) {
     // FIXME: we return if the first row of the series is not a number
@@ -151,39 +186,52 @@
 </script>
 
 <section id="choose">
-  <h2>2. Choose the column</h2>
+  <StepHeader enabled={$data} step={2}>
+    Select the (numeric) column that you want to inspect
+  </StepHeader>
 
   <div class="preview">
     {#if $data}
-      <table>
-        <thead>
-          <tr bind:this={thead}>
-            {#each $data.columns as column}
-              <th
-                class={getCellType($data[0][column])}
-                on:click={(event) => updateColumn(column, event)}
-              >
-                {column}
-              </th>
-            {/each}
-          </tr>
-        </thead>
-
-        <tbody bind:this={tbody}>
-          {#each $data.slice(0, 6) as row}
-            <tr>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr bind:this={thead}>
               {#each $data.columns as column}
-                <td
+                <th
+                  class={getCellType($data[0][column])}
                   on:click={(event) => updateColumn(column, event)}
-                  class={getCellType(row[column])}
                 >
-                  {row[column]}
-                </td>
+                  {column}
+                </th>
               {/each}
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody bind:this={tbody}>
+            {#each $data.slice(0, showRows) as row}
+              <tr>
+                {#each $data.columns as column}
+                  <td
+                    on:click={(event) => updateColumn(column, event)}
+                    class={getCellType(row[column])}
+                  >
+                    {row[column]}
+                  </td>
+                {/each}
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        on:click={handleMoreRows}
+        disabled={showRows === $data.length}
+      >Load more rows</button>
+      <div class="row-size">
+        {ft($data.length < showRows ? $data.length : showRows)}/{ft($data.length)}
+        rows
+      </div>
     {/if}
   </div>
 </section>

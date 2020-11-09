@@ -1,14 +1,29 @@
 @import "./reset.css";
 
+:root {
+  --sans-serif: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "Roboto Mono", Menlo, Monaco, Courier, monospace;
+  --black: #111;
+  --black-2: #4a4a4a;
+  --grey: #e2e2e2;
+  --grey-hover: #f5f5f5;
+  --grey-bg: #fbfbfb;
+  --grey-light: #e8e7e7;
+  --grey-text: #7c7c7c;
+  --grey-stroke: #979797;
+  --red-highlight: #ff445b;
+  --blue-highlight: #439cf6;
+}
+
 html {
   font-size: 100%;
 }
 body {
   background-color: white;
-  font-family: sans-serif;
+  font-family: var(--sans-serif);
   font-weight: 400;
   line-height: 1.65;
-  color: #333;
+  color: var(--black);
 }
 p {
   margin-bottom: 1.15rem;
@@ -18,7 +33,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: sans-serif;
+  font-family: var(--sans-serif);
   font-weight: 400;
   line-height: 1.15;
 }
@@ -45,21 +60,27 @@ small,
 strong {
   font-weight: 700;
 }
+section {
+  margin-bottom: 1.5rem;
+}
 
 .button-group button {
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.85rem;
   background: white;
   padding: 0.3rem 0.75rem;
-  border: 1px solid #ccc;
+  border: 1px solid #bfbfbf;
+  background: #ffffff;
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 .button-group button:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
 }
 .button-group button:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
 }
 .button-group button:hover {
   background: #e6e6e6;
@@ -71,4 +92,13 @@ strong {
 }
 .button-group button + button {
   margin-left: -1px;
+}
+
+@media (min-width: 600px) {
+  section {
+    margin-bottom: 2rem;
+  }
+  .button-group button {
+    font-size: 1rem;
+  }
 }
