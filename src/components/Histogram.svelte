@@ -14,9 +14,11 @@
   }
   .breaks line {
     stroke: #111;
+    stroke-dasharray: 2 2;
   }
   .breaks text {
-    font-size: 14px;
+    /* font-family: var(--mono); */
+    font-size: 12px;
   }
   .breaks path {
     fill: var(--black);
@@ -64,7 +66,7 @@
   } from "../stores.js";
 
   const ft0 = format(",.0f");
-  const ft = format(".2f");
+  const ft = format(".2~f");
   const ftc = format(",");
 
   let x;
@@ -204,8 +206,8 @@
       <g class="breaks">
         {#each $breaks[$scale] as d}
           <g transform={`translate(${x(d)},0)`}>
-            <line y1={-15} y2={height} />
-            <path transform="translate(-3,-15)" d="M0 0 L 6 0 L 3 7Z" />
+            <line y1={-12} y2={height} />
+            <!-- <path transform="translate(-3,-15)" d="M0 0 L 6 0 L 3 7Z" /> -->
             <text text-anchor="middle" dy={-20}>
               {d > 100 ? ft0(d) : ft(d)}
             </text>
