@@ -26,7 +26,7 @@
 
 <Setting
   name={'Method'}
-  help="<p><strong>Quantiles</strong> create breaks among roughly the same amount of records.</p>
+  help="<p><strong>Quantiles</strong> creates breaks among roughly the same amount of records.</p>
     <p><strong>Quantize</strong> will divide the breaks among equal intervals. The nice variant will try to create better-looking intervals.</p>
     <p><strong>Ckmeans</strong> is a clustering algorithm that will minimise differences between groups.</p>"
 >

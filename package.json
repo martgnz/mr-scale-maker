@@ -1,5 +1,5 @@
 {
-  "name": "svelte-app",
+  "name": "mr-scale-maker",
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",

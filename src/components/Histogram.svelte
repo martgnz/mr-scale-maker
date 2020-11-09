@@ -80,11 +80,11 @@
   let width;
   let height;
 
-  const margin = { top: 35, right: 10, bottom: 50, left: 10 };
+  const margin = { top: 35, right: 20, bottom: 50, left: 20 };
 
-  onMount(() => {
-    handleResize();
-  });
+  // for the mousemover
+  const bisect = bisector((d) => d).right;
+  const xCounter = scaleLinear().range([0, 140]);
 
   function handleResize() {
     const nodeWidth = container.getBoundingClientRect().width;
@@ -94,10 +94,12 @@
 
     width = nodeWidth - margin.right - margin.left;
     height = Math.min(nodeWidth * ratio, 400) - margin.top - margin.bottom;
+    xCounter.domain([0, width]);
   }
 
-  // for the mousemover
-  const bisect = bisector((d) => d).right;
+  onMount(() => {
+    handleResize();
+  });
 
   $: if ($columnData) {
     breaks.set(computeBreaks($breakTicks, $columnData.data));
@@ -135,7 +137,7 @@
     if (idx > bins.length - 1) return;
 
     hover = {
-      mx,
+      mx: mx - xCounter(mx),
       my,
       value: bins[idx].length,
       x0: bins[idx].x0,
@@ -240,10 +242,7 @@
   </svg>
 
   {#if hover}
-    <div
-      class="tooltip"
-      style="left: {hover.mx - 50}px; top: {hover.my - 10}px"
-    >
+    <div class="tooltip" style="left: {hover.mx}px; top: {hover.my - 10}px">
       There
       {hover.value === 1 ? 'is' : 'are'}
       {ftc(hover.value)}
