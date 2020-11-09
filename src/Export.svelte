@@ -13,7 +13,7 @@
   // FIXME: if it is over 100 we ignore decimals
   // is this too restrictive?
   const ft0 = format(".0f");
-  const ft = format(".1f");
+  const ft = format(".2f");
 
   let breaks;
   $: if ($selectedBreaks) {

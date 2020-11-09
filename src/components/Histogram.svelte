@@ -64,7 +64,7 @@
   } from "../stores.js";
 
   const ft0 = format(",.0f");
-  const ft = format(".1f");
+  const ft = format(".2f");
   const ftc = format(",");
 
   let x;

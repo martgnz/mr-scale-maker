@@ -68,6 +68,7 @@
     font-family: var(--sans-serif);
     font-weight: 500;
     border-bottom: 1px solid #111;
+    vertical-align: bottom;
   }
   th:not(:first-child),
   td:not(:first-child) {
@@ -134,9 +135,9 @@
   import getCellType from "./utils/get-cell-type";
   import { data, columnData } from "./stores.js";
 
-  const ft = format(',');
+  const ft = format(",");
 
-  $: showRows = 5;
+  $: showRows = 10;
   $: handleMoreRows = () => {
     if (showRows + 10 > $data.length) {
       showRows = $data.length;
@@ -227,7 +228,10 @@
         on:click={handleMoreRows}
         disabled={showRows === $data.length}
       >Load more rows</button>
-      <div class="row-size">{ft(showRows)}/{ft($data.length)} rows</div>
+      <div class="row-size">
+        {ft($data.length < showRows ? $data.length : showRows)}/{ft($data.length)}
+        rows
+      </div>
     {/if}
   </div>
 </section>
