@@ -2,7 +2,9 @@
   .statistics {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     font-size: 0.85rem;
+    margin-bottom: 0.5rem;
   }
   .statistic + .statistic {
     margin-left: 0;

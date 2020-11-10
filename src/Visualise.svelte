@@ -12,7 +12,7 @@
     position: sticky;
     top: 0;
   }
-  .histogram-settings {
+  .chart-settings {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -45,9 +45,37 @@
   import ColourSelector from "./components/ColourSelector.svelte";
   import StatisticsSelector from "./components/StatisticsSelector.svelte";
   import Histogram from "./components/Histogram.svelte";
+  import Beeswarm from "./components/Beeswarm.svelte";
   import HistogramBins from "./components/HistogramBins.svelte";
 
-  import { columnData } from "./stores.js";
+  import computeBreaks from "./utils/compute-breaks";
+  import {
+    breakTicks,
+    scale,
+    columnData,
+    colourScheme,
+    selectedBreaks,
+    breaks,
+  } from "./stores.js";
+
+  const chartComponents = [
+    { name: "Histogram", component: Histogram, settings: HistogramBins },
+    // { name: "Map", component: Map },
+    { name: "Beeswarm", component: Beeswarm },
+  ];
+
+  // histogram by default
+  let activeChart = chartComponents[0];
+
+  $: if ($columnData) {
+    breaks.set(computeBreaks($breakTicks, $columnData.data));
+
+    // save our current settings to the store
+    selectedBreaks.set({
+      breaks: $breaks[$scale],
+      colour: $colourScheme.scheme[$breakTicks + 1],
+    });
+  }
 </script>
 
 <section id="visualise">
@@ -56,7 +84,7 @@
   </StepHeader>
 
   {#if $columnData}
-  <div class="preview">
+    <div class="preview">
       <div class="settings">
         <MethodSelector />
         <BreakSelector />
@@ -64,11 +92,21 @@
       </div>
 
       <div class="chart">
-        <Histogram />
+        <StatisticsSelector />
 
-        <div class="histogram-settings">
-          <HistogramBins />
-          <StatisticsSelector />
+        <svelte:component this={activeChart.component} />
+
+        <div class="chart-settings">
+          <div class="button-group">
+            {#each chartComponents as d}
+              <button
+                class:active={activeChart.name === d.name}
+                on:click={() => (activeChart = d)}
+              >{d.name}</button>
+            {/each}
+          </div>
+
+          <svelte:component this={activeChart.settings} />
         </div>
       </div>
     </div>

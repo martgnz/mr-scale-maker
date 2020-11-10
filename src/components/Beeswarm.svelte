@@ -16,12 +16,17 @@
     stroke: #111;
     stroke-dasharray: 2 2;
   }
+  .circles circle {
+    stroke: var(--black);
+  }
+  .hover-circle {
+    stroke: var(--black);
+    stroke-width: 2;
+    fill: none;
+  }
   .breaks text {
     /* font-family: var(--mono); */
     font-size: 12px;
-  }
-  .zero {
-    stroke: var(--black);
   }
   .column-name {
     font-style: italic;
@@ -32,7 +37,7 @@
     pointer-events: none;
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
     border: 1px solid #f5f5f5;
-    width: 140px;
+    width: 60px;
     font-size: 12px;
     line-height: 1.2;
     padding: 5px;
@@ -44,40 +49,39 @@
   import { pointer } from "d3-selection";
   import { scaleThreshold, scaleLinear } from "d3-scale";
   import { format } from "d3-format";
-  import { extent, max, bin, bisector } from "d3-array";
+  import { voronoi } from "d3-voronoi";
+  import { extent } from "d3-array";
+  import { forceSimulation, forceX, forceY, forceCollide } from "d3-force";
 
   import Statistics from "./Statistics.svelte";
-
-  import {
-    scale,
-    columnData,
-    selectedBreaks,
-    binTicks,
-    breaks,
-  } from "../stores.js";
+  import { scale, columnData, selectedBreaks, breaks } from "../stores.js";
 
   const ft0 = format(",.0f");
   const ft = format(".2~f");
-  const ftc = format(",");
 
   let x;
-  let y;
   let z;
   let xTicks;
-  let yTicks;
-  let bins;
-  let bisectBins;
   let hover;
   let container;
   let windowWidth;
   let width;
   let height;
+  let data;
+  let radius;
+  let circleOpacity;
+  let v;
 
   const margin = { top: 35, right: 20, bottom: 50, left: 20 };
 
   // for the mousemover
-  const bisect = bisector((d) => d).right;
-  const xCounter = scaleLinear().range([0, 140]);
+  const xCounter = scaleLinear().range([0, 60]);
+
+  const radiusScale = scaleThreshold()
+    .range([8, 5, 2])
+    .domain([100, 500, 1000]);
+
+  const opacity = scaleThreshold().range([1, 0.25]).domain([1000]);
 
   function handleResize() {
     const nodeWidth = container.getBoundingClientRect().width;
@@ -95,38 +99,50 @@
   });
 
   $: if ($columnData) {
+    data = $columnData.data.slice().map((d) => ({ x0: d }));
+    radius = radiusScale(data.length);
+    circleOpacity = opacity(data.length);
+
     x = scaleLinear()
       .range([0, width])
-      .domain(extent($columnData.data, (d) => d));
-
-    bins = bin().domain(x.domain()).thresholds($binTicks)($columnData.data);
-
-    // we don't want to map on every mouseevent
-    bisectBins = bins.map((d) => d.x1);
-
-    y = scaleLinear()
-      .domain([0, max(bins, (d) => d.length)])
-      .range([height, 0]);
+      .domain(extent(data, (d) => d.x0));
 
     z = scaleThreshold().range($selectedBreaks.colour).domain($breaks[$scale]);
 
+    const force = forceSimulation(data)
+      .force(
+        "x",
+        forceX((d) => x(d.x0))
+      )
+      .force("y", forceY(height / 2))
+      .force("collide", forceCollide(radius + 0.75))
+      .stop();
+
+    // 120 iterations
+    for (let i = 0; i < 120; i++) {
+      force.tick();
+    }
+
+    v = voronoi()
+      .x((d) => d.x)
+      .y((d) => d.y)(data);
+
     xTicks = x.ticks(6);
-    yTicks = y.ticks(6);
   }
 
   function mousemoved(event) {
     const [mx, my] = pointer(event);
-    const idx = bisect(bisectBins, x.invert(mx));
+    const datum = v.find(mx, my, 50);
 
     // return when no results
-    if (idx > bins.length - 1) return;
+    if (!datum) return (hover = null);
 
     hover = {
       mx: mx - xCounter(mx),
       my,
-      value: bins[idx].length,
-      x0: bins[idx].x0,
-      x1: bins[idx].x1,
+      x: datum.data.x,
+      y: datum.data.y,
+      value: datum.data.x0,
     };
   }
 </script>
@@ -154,35 +170,16 @@
         </text>
       </g>
 
-      <g class="y axis">
-        {#each yTicks as tick, idx}
-          <g class="tick" transform={`translate(0,${y(tick)})`}>
-            <line x2={width} />
-          </g>
-        {/each}
-      </g>
-
-      <g>
-        {#each bins as d}
-          <g transform={`translate(${x(d.x0)},${y(d.length)})`}>
-            <rect
-              width={Math.max(0, x(d.x1) - x(d.x0) - 1)}
-              height={height - y(d.length)}
-              fill={z(max(d))}
-              stroke={hover ? hover.x0 === d.x0 && 'black' : 'white'}
-              stroke-width={hover ? hover.x0 === d.x0 && 1.5 : 0.25}
-            />
-          </g>
-        {/each}
-      </g>
-
-      <g class="y axis">
-        {#each yTicks as tick, idx}
-          <g class="tick" transform={`translate(0,${y(tick)})`}>
-            <text text-anchor="start" dy={-5} dx={0}>
-              {ft0(tick)}{' '}{yTicks.length - 1 === idx ? 'records' : ''}
-            </text>
-          </g>
+      <g class="circles">
+        {#each data as d}
+          <circle
+            stroke-width={0.5}
+            stroke-opacity={circleOpacity}
+            r={radius}
+            cx={d.x}
+            cy={d.y}
+            fill={z(d.x0)}
+          />
         {/each}
       </g>
 
@@ -190,7 +187,6 @@
         {#each $breaks[$scale] as d}
           <g transform={`translate(${x(d)},0)`}>
             <line y1={-12} y2={height} />
-            <!-- <path transform="translate(-3,-15)" d="M0 0 L 6 0 L 3 7Z" /> -->
             <text text-anchor="middle" dy={-20}>
               {d > 100 ? ft0(d) : ft(d)}
             </text>
@@ -200,7 +196,10 @@
 
       <Statistics {x} {height} />
 
-      <line class="zero" y1={height} y2={height} x2={width} />
+      {#if hover}
+        <circle class="hover-circle" cx={hover.x} cy={hover.y} r={radius} />
+      {/if}
+
       <rect
         fill="transparent"
         {width}
@@ -213,14 +212,7 @@
 
   {#if hover}
     <div class="tooltip" style="left: {hover.mx}px; top: {hover.my - 10}px">
-      There
-      {hover.value === 1 ? 'is' : 'are'}
-      {ftc(hover.value)}
-      record{hover.value === 1 ? '' : 's'}
-      between
-      {hover.x0 > 100 ? ft0(hover.x0) : ft(hover.x0)}
-      and
-      {hover.x1 > 100 ? ft0(hover.x1) : ft(hover.x1)}
+      {hover.value > 100 ? ft0(hover.value) : ft(hover.value)}
     </div>
   {/if}
 </div>
