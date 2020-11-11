@@ -1,5 +1,6 @@
-import { writable } from "svelte/store";
+import { writable, readable } from "svelte/store";
 import colours from "./utils/colours";
+import countries from "./countries.js";
 
 export const data = writable(null);
 export const columnData = writable(null);
@@ -14,3 +15,8 @@ export const breaks = writable(null);
 export const binsData = writable(null);
 export const defaultBeeswarmRadius = writable(null);
 export const beeswarmRadius = writable(null);
+
+// geo data
+const start = Math.floor(Math.random() * countries.length);
+export const country = readable(countries[start]);
+export const countryFeatures = writable(null);

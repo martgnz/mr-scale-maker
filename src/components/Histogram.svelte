@@ -42,7 +42,7 @@
 <script>
   import { onMount } from "svelte";
   import { pointer } from "d3-selection";
-  import { scaleThreshold, scaleLinear } from "d3-scale";
+  import { scaleLinear } from "d3-scale";
   import { format } from "d3-format";
   import { extent, max, bin, bisector } from "d3-array";
 
@@ -52,7 +52,6 @@
     scale,
     columnData,
     colourScale,
-    selectedBreaks,
     binTicks,
     breaks,
     binsData,
@@ -111,8 +110,7 @@
       .domain([0, max(bins, (d) => d.length)])
       .range([height, 0]);
 
-    z = scaleThreshold().range($selectedBreaks.colour).domain($breaks[$scale]);
-    colourScale.set(z);
+    z = $colourScale;
 
     xTicks = x.ticks(6);
     yTicks = y.ticks(6);

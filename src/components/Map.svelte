@@ -23,19 +23,17 @@
 <script>
   import { geoTransverseMercator, geoPath } from "d3-geo";
   import { sum, ascending, descending } from "d3-array";
-  import { document } from "lodash/_freeGlobal";
   import { Delaunay } from "d3-delaunay";
   import { onMount } from "svelte";
   import { feature, neighbors, mesh } from "topojson";
 
-  import countries from "../countries.js";
-  import { colourScale, binsData } from "../stores.js";
+  import {
+    colourScale,
+    binsData,
+    country,
+    countryFeatures,
+  } from "../stores.js";
 
-  const queryAll = document.querySelectorAll.bind(document);
-  const query = document.querySelector.bind(document);
-
-  const start = Math.floor(Math.random() * countries.length);
-  let country = countries[start];
   let path = () => {};
   let boundaries = [];
   let data = [];
@@ -49,12 +47,11 @@
     bins = $binsData;
     colour = $colourScale;
     onMount(async function () {
-      const response = await fetch(`geo/${country}.json`);
-      const json = await response.json();
-      boundaries = mesh(json, json.objects[country], (a, b) => a !== b);
-      const { features } = feature(json, json.objects[country]);
+      const json = $countryFeatures;
+      boundaries = mesh(json, json.objects[$country], (a, b) => a !== b);
+      const { features } = feature(json, json.objects[$country]);
 
-      const mapSettings = getMapSettings({ json, country });
+      const mapSettings = getMapSettings({ json, country: $country });
       const { projection } = mapSettings;
       width = mapSettings.width;
       height = mapSettings.height;
@@ -135,7 +132,7 @@
         });
       }
       console.log(`${outOfRange} features out of range`);
-      setCountryName.call(this, name);
+      // setCountryName.call(this, name);
     });
   }
 
@@ -207,5 +204,5 @@
     <path id="boundaries" d={path(boundaries)} />
     <circle id="start-point" r="3" cx={randomSite[0]} cy={randomSite[1]} />
   </svg>
-  <div id="selected-country" />
+  <!-- <div id="selected-country" /> -->
 </div>

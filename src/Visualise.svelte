@@ -50,6 +50,9 @@
 </style>
 
 <script>
+  import { onMount } from "svelte";
+  import { scaleThreshold } from "d3-scale";
+
   import StepHeader from "./components/StepHeader.svelte";
   import MethodSelector from "./components/MethodSelector.svelte";
   import BreakSelector from "./components/BreakSelector.svelte";
@@ -67,9 +70,19 @@
     scale,
     columnData,
     colourScheme,
+    colourScale,
     selectedBreaks,
     breaks,
+    country,
+    countryFeatures,
   } from "./stores.js";
+
+  onMount(async function () {
+    // load geo features on mount
+    const response = await fetch(`geo/${$country}.json`);
+    const json = await response.json();
+    countryFeatures.set(json);
+  });
 
   const chartComponents = [
     { name: "Histogram", component: Histogram, settings: HistogramBins },
@@ -88,6 +101,10 @@
       breaks: $breaks[$scale],
       colour: $colourScheme.scheme[$breakTicks + 1],
     });
+
+    colourScale.set(
+      scaleThreshold().range($selectedBreaks.colour).domain($breaks[$scale])
+    );
   }
 </script>
 
