@@ -2,6 +2,7 @@
   "name": "mr-scale-maker",
   "description": "Visualise distributions and create scales for your data, quickly",
   "version": "1.0.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/martgnz/mr-scale-maker.git"
