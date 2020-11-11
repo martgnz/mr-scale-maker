@@ -1,6 +1,11 @@
 {
   "name": "mr-scale-maker",
+  "description": "Visualise distributions and create scales for your data, quickly",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martgnz/mr-scale-maker.git"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
