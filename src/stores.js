@@ -12,3 +12,5 @@ export const binTicks = writable(20);
 export const showStatistics = writable([]);
 export const breaks = writable(null);
 export const binsData = writable(null);
+export const defaultBeeswarmRadius = writable(null);
+export const beeswarmRadius = writable(null);

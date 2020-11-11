@@ -12,10 +12,14 @@
     position: sticky;
     top: 0;
   }
-  .histogram-settings {
+  .chart-settings {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+  }
+  .chart-selector {
+    margin-bottom: 0.75rem;
   }
 
   @media (min-width: 960px) {
@@ -26,6 +30,13 @@
     }
     .settings {
       flex-basis: 25%;
+    }
+    .chart-selector {
+      margin-bottom: 0;
+    }
+    .chart-settings {
+      flex-direction: row;
+      align-items: center;
     }
     .chart {
       border-bottom: none;
@@ -46,9 +57,38 @@
   import StatisticsSelector from "./components/StatisticsSelector.svelte";
   import Histogram from "./components/Histogram.svelte";
   import Map from "./components/Map.svelte";
+  import Beeswarm from "./components/Beeswarm.svelte";
   import HistogramBins from "./components/HistogramBins.svelte";
+  import BeeswarmRadius from "./components/BeeswarmRadius.svelte";
 
-  import { columnData } from "./stores.js";
+  import computeBreaks from "./utils/compute-breaks";
+  import {
+    breakTicks,
+    scale,
+    columnData,
+    colourScheme,
+    selectedBreaks,
+    breaks,
+  } from "./stores.js";
+
+  const chartComponents = [
+    { name: "Histogram", component: Histogram, settings: HistogramBins },
+    { name: "Map", component: Map },
+    { name: "Beeswarm", component: Beeswarm, settings: BeeswarmRadius },
+  ];
+
+  // histogram by default
+  let activeChart = chartComponents[0];
+
+  $: if ($columnData) {
+    breaks.set(computeBreaks($breakTicks, $columnData.data));
+
+    // save our current settings to the store
+    selectedBreaks.set({
+      breaks: $breaks[$scale],
+      colour: $colourScheme.scheme[$breakTicks + 1],
+    });
+  }
 </script>
 
 <section id="visualise">
@@ -65,12 +105,21 @@
       </div>
 
       <div class="chart">
-        <Histogram />
-        <Map />
+        <StatisticsSelector />
 
-        <div class="histogram-settings">
-          <HistogramBins />
-          <StatisticsSelector />
+        <svelte:component this={activeChart.component} />
+
+        <div class="chart-settings">
+          <div class="chart-selector button-group">
+            {#each chartComponents as d}
+              <button
+                class:active={activeChart.name === d.name}
+                on:click={() => (activeChart = d)}
+              >{d.name}</button>
+            {/each}
+          </div>
+
+          <svelte:component this={activeChart.settings} />
         </div>
       </div>
     </div>

@@ -227,7 +227,7 @@
       <button
         on:click={handleMoreRows}
         disabled={showRows === $data.length}
-      >Load more rows</button>
+      >Show more rows</button>
       <div class="row-size">
         {ft($data.length < showRows ? $data.length : showRows)}/{ft($data.length)}
         rows
