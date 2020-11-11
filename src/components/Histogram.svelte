@@ -63,7 +63,6 @@
 
   let x;
   let y;
-  let z;
   let xTicks;
   let yTicks;
   let bins;
@@ -109,8 +108,6 @@
     y = scaleLinear()
       .domain([0, max(bins, (d) => d.length)])
       .range([height, 0]);
-
-    z = $colourScale;
 
     xTicks = x.ticks(6);
     yTicks = y.ticks(6);
@@ -170,7 +167,7 @@
             <rect
               width={Math.max(0, x(d.x1) - x(d.x0) - 1)}
               height={height - y(d.length)}
-              fill={z(max(d))}
+              fill={$colourScale(max(d))}
               stroke={hover ? hover.x0 === d.x0 && 'black' : 'white'}
               stroke-width={hover ? hover.x0 === d.x0 && 1.5 : 0.25}
             />

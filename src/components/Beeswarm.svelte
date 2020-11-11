@@ -67,7 +67,6 @@
   const ft = format(".2~f");
 
   let x;
-  let z;
   let xTicks;
   let hover;
   let container;
@@ -120,8 +119,6 @@
     x = scaleLinear()
       .range([0, width])
       .domain(extent(data, (d) => d.x0));
-
-    z = $colourScale;
 
     const force = forceSimulation(data)
       .force(
@@ -192,7 +189,7 @@
             r={radius}
             cx={d.x}
             cy={d.y}
-            fill={z(d.x0)}
+            fill={$colourScale(d.x0)}
           />
         {/each}
       </g>
