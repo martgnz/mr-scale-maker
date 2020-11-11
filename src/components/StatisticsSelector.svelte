@@ -1,15 +1,14 @@
 <style>
   .statistics {
     display: flex;
+    font-size: 12px;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    font-size: 0.85rem;
     margin-bottom: 0.5rem;
   }
   .standard-deviation {
-    margin-left: 20px;
-    font-size: 12px;
+    margin-top: 0.25rem;
   }
   .flex {
     margin-top: 0.25rem;
@@ -17,10 +16,16 @@
     justify-content: flex-start;
   }
   .statistic + .statistic {
-    margin-left: 0;
+    margin-left: 0.5rem;
   }
+
   @media (min-width: 600px) {
+    .standard-deviation {
+      margin-top: 0;
+      margin-left: 20px;
+    }
     .statistics {
+      align-items: center;
       flex-direction: row;
     }
     .statistic + .statistic {

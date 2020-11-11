@@ -70,6 +70,7 @@
   let data;
   let radius;
   let circleOpacity;
+  let isMobile;
   let v;
 
   const margin = { top: 35, right: 20, bottom: 50, left: 20 };
@@ -77,17 +78,15 @@
   // for the mousemover
   const xCounter = scaleLinear().range([0, 60]);
 
-  const radiusScale = scaleThreshold()
-    .range([8, 5, 2])
-    .domain([100, 500, 1000]);
-
-  const opacity = scaleThreshold().range([1, 0.25]).domain([1000]);
+  const radiusScale = scaleThreshold().domain([100, 500, 1000]);
+  const opacity = scaleThreshold().domain([1000]);
 
   function handleResize() {
+    isMobile = windowWidth < 600;
+
     const nodeWidth = container.getBoundingClientRect().width;
     const isSticky = windowWidth < 960;
-    const isMobile = windowWidth < 600;
-    const ratio = isMobile ? 0.75 : isSticky ? 0.35 : 0.5;
+    const ratio = isMobile ? 0.6 : isSticky ? 0.35 : 0.5;
 
     width = nodeWidth - margin.right - margin.left;
     height = Math.min(nodeWidth * ratio, 400) - margin.top - margin.bottom;
@@ -99,6 +98,9 @@
   });
 
   $: if ($columnData) {
+    radiusScale.range(isMobile ? [3, 3, 2] : [8, 5, 2]);
+    opacity.range(isMobile ? [0.5, 0.25] : [1, 0.25]);
+
     data = $columnData.data.slice().map((d) => ({ x0: d }));
     radius = radiusScale(data.length);
     circleOpacity = opacity(data.length);

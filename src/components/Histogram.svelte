@@ -83,7 +83,7 @@
     const nodeWidth = container.getBoundingClientRect().width;
     const isSticky = windowWidth < 960;
     const isMobile = windowWidth < 600;
-    const ratio = isMobile ? 0.75 : isSticky ? 0.35 : 0.5;
+    const ratio = isMobile ? 0.6 : isSticky ? 0.35 : 0.5;
 
     width = nodeWidth - margin.right - margin.left;
     height = Math.min(nodeWidth * ratio, 400) - margin.top - margin.bottom;

@@ -14,8 +14,12 @@
   }
   .chart-settings {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+  }
+  .chart-selector {
+    margin-bottom: 0.75rem;
   }
 
   @media (min-width: 960px) {
@@ -26,6 +30,13 @@
     }
     .settings {
       flex-basis: 25%;
+    }
+    .chart-selector {
+      margin-bottom: 0;
+    }
+    .chart-settings {
+      flex-direction: row;
+      align-items: center;
     }
     .chart {
       border-bottom: none;
@@ -97,7 +108,7 @@
         <svelte:component this={activeChart.component} />
 
         <div class="chart-settings">
-          <div class="button-group">
+          <div class="chart-selector button-group">
             {#each chartComponents as d}
               <button
                 class:active={activeChart.name === d.name}
