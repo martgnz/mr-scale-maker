@@ -57,7 +57,7 @@
   import {
     scale,
     columnData,
-    selectedBreaks,
+    colourScale,
     breaks,
     beeswarmRadius,
     defaultBeeswarmRadius,
@@ -121,7 +121,7 @@
       .range([0, width])
       .domain(extent(data, (d) => d.x0));
 
-    z = scaleThreshold().range($selectedBreaks.colour).domain($breaks[$scale]);
+    z = $colourScale;
 
     const force = forceSimulation(data)
       .force(
