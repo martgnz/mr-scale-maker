@@ -89,7 +89,7 @@
 <Setting
   name="Colour scale"
   help="<p><strong>Sequential</strong> colours are meant for data that progresses from low to high.</p>
-  <p><strong>Sequential multi-hue</strong> scales are richer and in general have better contrast.</p>
+  <p><strong>Sequential multi-hue</strong> scales have richer colours and in general have better contrast.</p>
   <p><strong>Diverging</strong> scales accentuate middle and extreme values.</p>"
 >
   <select
