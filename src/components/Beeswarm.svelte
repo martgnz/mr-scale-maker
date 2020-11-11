@@ -54,7 +54,14 @@
   import { forceSimulation, forceX, forceY, forceCollide } from "d3-force";
 
   import Statistics from "./Statistics.svelte";
-  import { scale, columnData, selectedBreaks, breaks } from "../stores.js";
+  import {
+    scale,
+    columnData,
+    selectedBreaks,
+    breaks,
+    beeswarmRadius,
+    defaultBeeswarmRadius,
+  } from "../stores.js";
 
   const ft0 = format(",.0f");
   const ft = format(".2~f");
@@ -98,12 +105,17 @@
   });
 
   $: if ($columnData) {
-    radiusScale.range(isMobile ? [3, 3, 2] : [8, 5, 2]);
-    opacity.range(isMobile ? [0.5, 0.25] : [1, 0.25]);
+    /// the circle radius and opacity roughly adapt to the number of records
+    radiusScale.range(isMobile ? [4, 2, 2] : [8, 6, 2]);
+    opacity.range(isMobile ? [0.5, 0.25] : [0.75, 0.25]);
 
     data = $columnData.data.slice().map((d) => ({ x0: d }));
-    radius = radiusScale(data.length);
+    radius = $beeswarmRadius || radiusScale(data.length);
     circleOpacity = opacity(data.length);
+
+    // set default radius
+    // we need this for highlighting the right button on the selector
+    defaultBeeswarmRadius.set(radiusScale(data.length));
 
     x = scaleLinear()
       .range([0, width])

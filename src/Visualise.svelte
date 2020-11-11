@@ -58,6 +58,7 @@
   import Histogram from "./components/Histogram.svelte";
   import Beeswarm from "./components/Beeswarm.svelte";
   import HistogramBins from "./components/HistogramBins.svelte";
+  import BeeswarmRadius from "./components/BeeswarmRadius.svelte";
 
   import computeBreaks from "./utils/compute-breaks";
   import {
@@ -72,7 +73,7 @@
   const chartComponents = [
     { name: "Histogram", component: Histogram, settings: HistogramBins },
     // { name: "Map", component: Map },
-    { name: "Beeswarm", component: Beeswarm },
+    { name: "Beeswarm", component: Beeswarm, settings: BeeswarmRadius },
   ];
 
   // histogram by default
