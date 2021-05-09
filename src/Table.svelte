@@ -224,12 +224,13 @@
         </table>
       </div>
 
-      <button
-        on:click={handleMoreRows}
-        disabled={showRows === $data.length}
-      >Show more rows</button>
+      <button on:click={handleMoreRows} disabled={showRows === $data.length}
+        >Show more rows</button
+      >
       <div class="row-size">
-        {ft($data.length < showRows ? $data.length : showRows)}/{ft($data.length)}
+        {ft($data.length < showRows ? $data.length : showRows)}/{ft(
+          $data.length
+        )}
         rows
       </div>
     {/if}
